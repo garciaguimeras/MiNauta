@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Mi Nauta</string>
+
+    <string name="account_activity_text">Introduzca su usuario y contraseña</string>
+    <string name="configure_account_text">Configure su cuenta de Nauta</string>
+    <string name="start_session_text">Iniciar su sesión de Nauta</string>
+    <string name="close_session_text">Cerrar su sesión de Nauta</string>
+    <string name="available_time_text">Tiempo disponible:</string>
+    <string name="used_time_text">Tiempo utilizado:</string>
+
+    <string name="hint_username">Usuario</string>
+    <string name="hint_password">Contraseña</string>
+
+    <string name="button_accept">Aceptar</string>
+    <string name="button_configure">Configurar</string>
+    <string name="button_start">Iniciar</string>
+    <string name="button_close">Cerrar</string>
+</resources>
