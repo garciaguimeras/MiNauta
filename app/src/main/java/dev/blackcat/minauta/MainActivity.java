@@ -9,9 +9,9 @@ import android.widget.TextView;
 import java.util.Calendar;
 
 import dev.blackcat.minauta.data.Account;
-import dev.blackcat.minauta.data.net.Connection;
-import dev.blackcat.minauta.data.net.ConnectionFactory;
-import dev.blackcat.minauta.data.net.FakeConnection;
+import dev.blackcat.minauta.net.Connection;
+import dev.blackcat.minauta.net.ConnectionFactory;
+import dev.blackcat.minauta.net.FakeConnection;
 import dev.blackcat.minauta.data.store.PreferencesStore;
 
 public class MainActivity extends MyAppCompatActivity

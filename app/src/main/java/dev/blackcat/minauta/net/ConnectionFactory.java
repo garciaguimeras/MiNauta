@@ -1,4 +1,4 @@
-package dev.blackcat.minauta.data.net;
+package dev.blackcat.minauta.net;
 
 public class ConnectionFactory
 {

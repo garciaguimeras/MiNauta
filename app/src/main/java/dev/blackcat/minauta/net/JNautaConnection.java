@@ -1,4 +1,4 @@
-package dev.blackcat.minauta.data.net;
+package dev.blackcat.minauta.net;
 
 import dev.blackcat.minauta.data.Account;
 import dev.blackcat.minauta.data.Session;
