@@ -6,7 +6,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 import dev.blackcat.minauta.data.Account;
+import dev.blackcat.minauta.data.net.Connection;
+import dev.blackcat.minauta.data.net.ConnectionFactory;
+import dev.blackcat.minauta.data.net.FakeConnection;
 import dev.blackcat.minauta.data.store.PreferencesStore;
 
 public class MainActivity extends MyAppCompatActivity
@@ -70,9 +75,29 @@ public class MainActivity extends MyAppCompatActivity
             @Override
             public void onClick(View view)
             {
-                Intent intent = new Intent(MainActivity.this, SessionActivity.class);
-                startActivity(intent);
+                startSession();
             }
         });
+    }
+
+    private void startSession()
+    {
+        PreferencesStore store = new PreferencesStore(this);
+        Account account = store.getAccount();
+
+        // TODO: Change for a real connection
+        Connection connection = ConnectionFactory.createSessionProducer(FakeConnection.class);
+        Connection.LoginResult result = connection.login(account);
+
+        if (result.state != Connection.State.OK)
+        {
+            // TODO: Error messages!
+            return;
+        }
+
+        long now = Calendar.getInstance().getTimeInMillis();
+        store.setSession(result.session.getLogoutParams(), result.session.getTimeParams(), now);
+        Intent intent = new Intent(this, SessionActivity.class);
+        startActivity(intent);
     }
 }
