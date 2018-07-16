@@ -30,4 +30,14 @@ public class FakeConnection implements Connection
 
         return result;
     }
+
+    @Override
+    public AvailableTimeResult getAvailableTime(Session session)
+    {
+        AvailableTimeResult result = new AvailableTimeResult();
+        result.availableTime = "02:30:15";
+        result.state = State.OK;
+
+        return result;
+    }
 }

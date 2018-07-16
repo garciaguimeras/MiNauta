@@ -16,4 +16,10 @@ public class JNautaConnection implements Connection
     {
         return null;
     }
+
+    @Override
+    public AvailableTimeResult getAvailableTime(Session session)
+    {
+        return null;
+    }
 }

@@ -5,7 +5,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import dev.blackcat.minauta.async.SessionAvailableTimeAsyncTask;
+import dev.blackcat.minauta.async.SessionUsedTimeTask;
 import dev.blackcat.minauta.data.Account;
+import dev.blackcat.minauta.data.Session;
 import dev.blackcat.minauta.net.Connection;
 import dev.blackcat.minauta.net.ConnectionFactory;
 import dev.blackcat.minauta.net.FakeConnection;
@@ -40,6 +47,33 @@ public class SessionActivity extends MyAppCompatActivity
 
         availableTimeTextView = this.getViewById(R.id.availableTimeTextView);
         usedTimeTextView = this.getViewById(R.id.usedTimeTextView);
+
+        final String availableTimeText = getString(R.string.available_time_text);
+        new SessionAvailableTimeAsyncTask(this, new SessionAvailableTimeAsyncTask.OnTaskResult() {
+            @Override
+            public void onResult(Connection.AvailableTimeResult result)
+            {
+                if (result.state != Connection.State.OK)
+                    availableTimeTextView.setText(availableTimeText + " --:--:--");
+                else
+                    availableTimeTextView.setText(availableTimeText + " " + result.availableTime);
+            }
+        }).execute();
+
+        final String usedTimeText = getString(R.string.used_time_text);
+        new SessionUsedTimeTask(this, new SessionUsedTimeTask.OnTaskResult() {
+            @Override
+            public void onResult(final String time)
+            {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        usedTimeTextView.setText(usedTimeText + " " + time);
+                    }
+                });
+            }
+        }).execute();
     }
 
     protected void closeSession()

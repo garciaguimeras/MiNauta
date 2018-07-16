@@ -26,6 +26,14 @@ public interface Connection
         public State state;
     }
 
+    public class AvailableTimeResult
+    {
+        public State state;
+        public String availableTime;
+    }
+
     LoginResult login(Account account);
     LogoutResult logout(Session session);
+    AvailableTimeResult getAvailableTime(Session session);
+
 }
