@@ -53,7 +53,7 @@ public class SessionActivity extends MyAppCompatActivity
 
         if (result.state != Connection.State.OK)
         {
-            // TODO: Error messages!
+            this.showDialogWithText(R.string.logout_error);
         }
 
         store.setSession("", "", 0);

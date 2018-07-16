@@ -91,7 +91,20 @@ public class MainActivity extends MyAppCompatActivity
 
         if (result.state != Connection.State.OK)
         {
-            // TODO: Error messages!
+            int resId = R.string.login_error;
+            switch (result.state)
+            {
+                case ALREADY_CONNECTED:
+                    resId = R.string.already_connected_error;
+                    break;
+                case INCORRECT_PASSWORD:
+                    resId = R.string.incorrect_password_error;
+                    break;
+                case UNKNOWN_USERNAME:
+                    resId = R.string.unknown_username_error;
+                    break;
+            }
+            this.showDialogWithText(resId);
             return;
         }
 
