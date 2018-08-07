@@ -9,37 +9,37 @@ import dev.blackcat.minauta.net.Connection;
 import dev.blackcat.minauta.net.ConnectionFactory;
 import dev.blackcat.minauta.net.JNautaConnection;
 
-public class SessionAvailableTimeAsyncTask extends AsyncTask<Void, Void, Connection.AvailableTimeResult>
+public class SessionLoginAsyncTask extends AsyncTask<Void, Void, Connection.LoginResult>
 {
 
     public interface OnTaskResult
     {
-        void onResult(Connection.AvailableTimeResult result);
+        void onResult(Connection.LoginResult result);
     }
 
     Context context;
     OnTaskResult onTaskResult;
 
-    public SessionAvailableTimeAsyncTask(Context context, OnTaskResult onTaskResult)
+    public SessionLoginAsyncTask(Context context, OnTaskResult onTaskResult)
     {
         this.context = context;
         this.onTaskResult = onTaskResult;
     }
 
     @Override
-    protected Connection.AvailableTimeResult doInBackground(Void... params)
+    protected Connection.LoginResult doInBackground(Void... params)
     {
         PreferencesStore store = new PreferencesStore(this.context);
         Account account = store.getAccount();
 
         Connection connection = ConnectionFactory.createSessionProducer(JNautaConnection.class);
-        Connection.AvailableTimeResult result = connection.getAvailableTime(account);
+        Connection.LoginResult result = connection.login(account);
 
         return result;
     }
 
     @Override
-    protected void onPostExecute(Connection.AvailableTimeResult result)
+    protected void onPostExecute(Connection.LoginResult result)
     {
         if (onTaskResult != null)
             onTaskResult.onResult(result);

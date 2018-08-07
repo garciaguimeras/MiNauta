@@ -8,8 +8,13 @@
     <string name="available_time_text">Tiempo disponible:</string>
     <string name="used_time_text">Tiempo utilizado:</string>
 
+    <string name="connecting_text">Conectando...</string>
+    <string name="closing_text">Cerrando...</string>
+
     <string name="login_error">No se pudo iniciar la sesión. Por favor, revise su conexión</string>
     <string name="already_connected_error">Ya existe un usuario conectado previamente. No necesita iniciar la sesión para acceder a internet</string>
+    <string name="no_money_error">Su cuenta se ha quedado sin saldo</string>
+    <string name="is_google_error">Su conexión a internet se encuentra abierta pero no tenemos forma de cerrarla. Cierre la WiFi o apague el router para desconectarse</string>
     <string name="unknown_username_error">No se reconoce el nombre de usuario</string>
     <string name="incorrect_password_error">La contraseña es incorrecta</string>
     <string name="logout_error">No se pudo cerrar la sesión. Cierre la WiFi o apague el router para desconectarse</string>

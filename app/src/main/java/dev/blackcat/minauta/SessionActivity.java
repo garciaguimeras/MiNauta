@@ -1,22 +1,19 @@
 package dev.blackcat.minauta;
 
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import dev.blackcat.minauta.async.SessionAvailableTimeAsyncTask;
+import dev.blackcat.minauta.async.SessionLogoutAsyncTask;
 import dev.blackcat.minauta.async.SessionUsedTimeTask;
 import dev.blackcat.minauta.data.Account;
-import dev.blackcat.minauta.data.Session;
 import dev.blackcat.minauta.net.Connection;
 import dev.blackcat.minauta.net.ConnectionFactory;
-import dev.blackcat.minauta.net.FakeConnection;
 import dev.blackcat.minauta.data.store.PreferencesStore;
+import dev.blackcat.minauta.net.JNautaConnection;
 
 public class SessionActivity extends MyAppCompatActivity
 {
@@ -78,20 +75,24 @@ public class SessionActivity extends MyAppCompatActivity
 
     protected void closeSession()
     {
-        PreferencesStore store = new PreferencesStore(this);
-        Account account = store.getAccount();
+        final PreferencesStore store = new PreferencesStore(this);
+        final AlertDialog closingDialog = this.showDialogWithText(R.string.closing_text);
 
-        // TODO: Change for a real connection
-        Connection connection = ConnectionFactory.createSessionProducer(FakeConnection.class);
-        Connection.LogoutResult result = connection.logout(account.getSession());
+        new SessionLogoutAsyncTask(this, new SessionLogoutAsyncTask.OnTaskResult() {
+            @Override
+            public void onResult(Connection.LogoutResult result)
+            {
+                closingDialog.dismiss();
 
-        if (result.state != Connection.State.OK)
-        {
-            this.showDialogWithText(R.string.logout_error);
-        }
+                if (result.state != Connection.State.OK)
+                {
+                    SessionActivity.this.showOneButtonDialogWithText(R.string.logout_error);
+                }
 
-        store.setSession("", "", 0);
-        finish();
+                store.setSession("", "", 0);
+                finish();
+            }
+        }).execute();
     }
 
 }

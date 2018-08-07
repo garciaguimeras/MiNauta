@@ -23,7 +23,7 @@ public class FakeConnection implements Connection
     }
 
     @Override
-    public LogoutResult logout(Session session)
+    public LogoutResult logout(Account account)
     {
         LogoutResult result = new LogoutResult();
         result.state = State.OK;
@@ -32,7 +32,7 @@ public class FakeConnection implements Connection
     }
 
     @Override
-    public AvailableTimeResult getAvailableTime(Session session)
+    public AvailableTimeResult getAvailableTime(Account account)
     {
         AvailableTimeResult result = new AvailableTimeResult();
         result.availableTime = "02:30:15";

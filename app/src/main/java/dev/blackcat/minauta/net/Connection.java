@@ -13,6 +13,8 @@ public interface Connection
         UNKNOWN_USERNAME,
         INCORRECT_PASSWORD,
         ALREADY_CONNECTED,
+        NO_MONEY,
+        IS_GOOGLE
     }
 
     public class LoginResult
@@ -33,7 +35,7 @@ public interface Connection
     }
 
     LoginResult login(Account account);
-    LogoutResult logout(Session session);
-    AvailableTimeResult getAvailableTime(Session session);
+    LogoutResult logout(Account account);
+    AvailableTimeResult getAvailableTime(Account account);
 
 }

@@ -2,17 +2,19 @@ package dev.blackcat.minauta;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Calendar;
 
+import dev.blackcat.minauta.async.SessionLoginAsyncTask;
 import dev.blackcat.minauta.data.Account;
 import dev.blackcat.minauta.net.Connection;
 import dev.blackcat.minauta.net.ConnectionFactory;
-import dev.blackcat.minauta.net.FakeConnection;
 import dev.blackcat.minauta.data.store.PreferencesStore;
+import dev.blackcat.minauta.net.JNautaConnection;
 
 public class MainActivity extends MyAppCompatActivity
 {
@@ -82,35 +84,43 @@ public class MainActivity extends MyAppCompatActivity
 
     private void startSession()
     {
-        PreferencesStore store = new PreferencesStore(this);
-        Account account = store.getAccount();
+        final PreferencesStore store = new PreferencesStore(this);
+        final AlertDialog connectingDialog = this.showDialogWithText(R.string.connecting_text);
 
-        // TODO: Change for a real connection
-        Connection connection = ConnectionFactory.createSessionProducer(FakeConnection.class);
-        Connection.LoginResult result = connection.login(account);
-
-        if (result.state != Connection.State.OK)
-        {
-            int resId = R.string.login_error;
-            switch (result.state)
+        new SessionLoginAsyncTask(this, new SessionLoginAsyncTask.OnTaskResult() {
+            @Override
+            public void onResult(Connection.LoginResult result)
             {
-                case ALREADY_CONNECTED:
-                    resId = R.string.already_connected_error;
-                    break;
-                case INCORRECT_PASSWORD:
-                    resId = R.string.incorrect_password_error;
-                    break;
-                case UNKNOWN_USERNAME:
-                    resId = R.string.unknown_username_error;
-                    break;
-            }
-            this.showDialogWithText(resId);
-            return;
-        }
+                connectingDialog.dismiss();
 
-        long now = Calendar.getInstance().getTimeInMillis();
-        store.setSession(result.session.getLogoutParams(), result.session.getTimeParams(), now);
-        Intent intent = new Intent(this, SessionActivity.class);
-        startActivity(intent);
+                if (result.state != Connection.State.OK)
+                {
+                    int resId = R.string.login_error;
+                    switch (result.state)
+                    {
+                        case ALREADY_CONNECTED:
+                            resId = R.string.already_connected_error;
+                            break;
+                        case NO_MONEY:
+                            resId = R.string.no_money_error;
+                            break;
+                        case INCORRECT_PASSWORD:
+                            resId = R.string.incorrect_password_error;
+                            break;
+                        case UNKNOWN_USERNAME:
+                            resId = R.string.unknown_username_error;
+                            break;
+                    }
+                    MainActivity.this.showOneButtonDialogWithText(resId);
+                    return;
+                }
+
+                long now = Calendar.getInstance().getTimeInMillis();
+                store.setSession(result.session.getLogoutParams(), result.session.getTimeParams(), now);
+                Intent intent = new Intent(MainActivity.this, SessionActivity.class);
+                startActivity(intent);
+            }
+        }).execute();
+
     }
 }
