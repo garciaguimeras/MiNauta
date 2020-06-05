@@ -7,7 +7,8 @@ import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
 
 class FakeConnection : Connection {
-    override fun login(account: Account): Connection.LoginResult {
+
+    override suspend fun login(account: Account): Connection.LoginResult {
         val session = Session()
         session.loginParams = "x=x&y=y"
         session.startTime = Calendar.getInstance().timeInMillis
@@ -19,14 +20,14 @@ class FakeConnection : Connection {
         return result
     }
 
-    override fun logout(account: Account): Connection.LogoutResult {
+    override suspend fun logout(account: Account): Connection.LogoutResult {
         val result = Connection.LogoutResult()
         result.state = Connection.State.OK
 
         return result
     }
 
-    override fun getAvailableTime(account: Account): Connection.AvailableTimeResult {
+    override suspend fun getAvailableTime(account: Account): Connection.AvailableTimeResult {
         val result = Connection.AvailableTimeResult()
         result.availableTime = "02:30:15"
         result.state = Connection.State.OK

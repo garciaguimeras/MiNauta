@@ -29,8 +29,8 @@ interface Connection {
         var availableTime: String? = null
     }
 
-    fun login(account: Account): LoginResult
-    fun logout(account: Account): LogoutResult
-    fun getAvailableTime(account: Account): AvailableTimeResult
+    suspend fun login(account: Account): LoginResult
+    suspend fun logout(account: Account): LogoutResult
+    suspend fun getAvailableTime(account: Account): AvailableTimeResult
 
 }

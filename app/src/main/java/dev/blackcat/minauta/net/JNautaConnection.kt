@@ -1,64 +1,63 @@
 package dev.blackcat.minauta.net
 
-import dev.blackcat.jnauta.net.AuthenticationResponseParser
-import dev.blackcat.minauta.sync.AvailableTimeThread
-import dev.blackcat.minauta.sync.LoginThread
-import dev.blackcat.minauta.sync.LogoutThread
+import android.util.Log
+import dev.blackcat.jnauta.net.Authentication
+import dev.blackcat.jnauta.net.ConnectionBuilder
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class JNautaConnection : Connection {
 
-    override fun login(account: Account): Connection.LoginResult {
-        val thread = LoginThread(account)
-        val loginResult = thread.execute()
+    override suspend fun login(account: Account): Connection.LoginResult =
+        withContext(Dispatchers.IO) {
+            val authentication = Authentication(ConnectionBuilder.Method.OK_HTTP, account.username, account.password, null)
+            val loginResult = authentication.login()
 
-        val result = Connection.LoginResult()
-        if (loginResult == null)
-            result.state = Connection.State.ERROR
-        else if (loginResult.alreadyConnected)
-            result.state = Connection.State.ALREADY_CONNECTED
-        else if (loginResult.noMoney)
-            result.state = Connection.State.NO_MONEY
-        else if (loginResult.badPassword)
-            result.state = Connection.State.INCORRECT_PASSWORD
-        else if (loginResult.badUsername)
-            result.state = Connection.State.UNKNOWN_USERNAME
-        else if (loginResult.isGoogle)
-            result.state = Connection.State.IS_GOOGLE
-        else if (loginResult.paramString == "")
-            result.state = Connection.State.ERROR
-        else {
-            val session = Session()
-            session.loginParams = loginResult.paramString
-            result.session = session
-            result.state = Connection.State.OK
+            val result = Connection.LoginResult()
+            if (loginResult == null)
+                result.state = Connection.State.ERROR
+            else if (loginResult.alreadyConnected)
+                result.state = Connection.State.ALREADY_CONNECTED
+            else if (loginResult.noMoney)
+                result.state = Connection.State.NO_MONEY
+            else if (loginResult.badPassword)
+                result.state = Connection.State.INCORRECT_PASSWORD
+            else if (loginResult.badUsername)
+                result.state = Connection.State.UNKNOWN_USERNAME
+            else if (loginResult.isGoogle)
+                result.state = Connection.State.IS_GOOGLE
+            else if (loginResult.paramString == "")
+                result.state = Connection.State.ERROR
+            else {
+                val session = Session()
+                session.loginParams = loginResult.paramString
+                result.session = session
+                result.state = Connection.State.OK
+            }
+            return@withContext result
         }
-        return result
-    }
 
-    override fun logout(account: Account): Connection.LogoutResult {
-        val thread = LogoutThread(account)
-        val logoutResult = thread.execute()
+    override suspend fun logout(account: Account): Connection.LogoutResult =
+        withContext(Dispatchers.IO) {
+            val authentication = Authentication(ConnectionBuilder.Method.OK_HTTP, account.username, account.password, null)
+            val logoutResult = authentication.logout(account.session!!.loginParams)
 
-        val result = Connection.LogoutResult()
-        result.state = Connection.State.OK
-        if (logoutResult == null || !logoutResult)
-            result.state = Connection.State.ERROR
-        return result
-    }
+            val result = Connection.LogoutResult()
+            result.state = if (logoutResult) Connection.State.OK else Connection.State.ERROR
+            return@withContext result
+        }
 
-    override fun getAvailableTime(account: Account): Connection.AvailableTimeResult {
-        val thread = AvailableTimeThread(account)
-        val time = thread.execute()
+    override suspend fun getAvailableTime(account: Account): Connection.AvailableTimeResult =
+        withContext(Dispatchers.IO) {
+            val authentication = Authentication(ConnectionBuilder.Method.OK_HTTP, account.username, account.password, null)
+            val time = authentication.getAvailableTime(account.session!!.loginParams)
 
-        val result = Connection.AvailableTimeResult()
-        if (time == null)
-            result.state = Connection.State.ERROR
-        else {
-            result.state = Connection.State.OK
+            val result = Connection.AvailableTimeResult()
+            result.state = if (time != null) Connection.State.OK else Connection.State.ERROR
             result.availableTime = time
+            return@withContext result
         }
-        return result
-    }
+
 }

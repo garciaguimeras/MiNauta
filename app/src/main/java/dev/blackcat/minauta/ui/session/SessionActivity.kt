@@ -8,10 +8,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 
 import dev.blackcat.minauta.R
-import dev.blackcat.minauta.async.SessionAvailableTimeAsyncTask
-import dev.blackcat.minauta.async.SessionLogoutAsyncTask
-import dev.blackcat.minauta.async.SessionUsedTimeTask
-import dev.blackcat.minauta.data.store.PreferencesStore
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.ui.MyAppCompatActivity
 
@@ -41,12 +37,12 @@ class SessionActivity : MyAppCompatActivity() {
 
         viewModel.availableTime.observe(this, object : Observer<String> {
             override fun onChanged(text: String) {
-                runOnUiThread { availableTimeTextView.text = text  }
+                availableTimeTextView.text = text
             }
         })
         viewModel.usedTime.observe(this, object : Observer<String> {
             override fun onChanged(text: String) {
-                runOnUiThread { usedTimeTextView.text = text  }
+                usedTimeTextView.text = text
             }
         })
         viewModel.logoutResult.observe(this, object : Observer<Connection.LogoutResult> {
