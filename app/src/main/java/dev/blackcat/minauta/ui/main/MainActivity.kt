@@ -14,6 +14,7 @@ class MainActivity : MyAppCompatActivity() {
 
     lateinit var viewModel: MainViewModel
 
+    lateinit var portalButton: Button
     lateinit var configureButton: Button
     lateinit var startButton: Button
     lateinit var accountTextView: TextView
@@ -28,6 +29,11 @@ class MainActivity : MyAppCompatActivity() {
         configureButton = this.getViewById(R.id.configureButton)
         configureButton.setOnClickListener {
             viewModel.startAccountActivity(this)
+        }
+
+        portalButton = this.getViewById(R.id.portalButton)
+        portalButton.setOnClickListener {
+            viewModel.startPortalActivity(this)
         }
 
         startButton = this.getViewById(R.id.startButton)

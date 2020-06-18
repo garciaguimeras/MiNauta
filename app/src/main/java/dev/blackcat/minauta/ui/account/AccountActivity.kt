@@ -22,6 +22,7 @@ class AccountActivity : MyAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account)
+
         viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(AccountViewModel::class.java)
 
         usernameEdit = this.getViewById(R.id.usernameEdit)

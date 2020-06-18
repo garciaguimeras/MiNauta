@@ -9,6 +9,7 @@ import dev.blackcat.minauta.net.ConnectionFactory
 import dev.blackcat.minauta.net.JNautaConnection
 import dev.blackcat.minauta.ui.MyViewModel
 import dev.blackcat.minauta.ui.account.AccountActivity
+import dev.blackcat.minauta.ui.portal.PortalActivity
 import dev.blackcat.minauta.ui.session.SessionActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,11 @@ class MainViewModel(application: Application) : MyViewModel(application) {
 
     fun startAccountActivity(activity: MainActivity) {
         val intent = Intent(activity, AccountActivity::class.java)
+        activity.startActivity(intent)
+    }
+
+    fun startPortalActivity(activity: MainActivity) {
+        val intent = Intent(activity, PortalActivity::class.java)
         activity.startActivity(intent)
     }
 

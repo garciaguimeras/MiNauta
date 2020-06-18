@@ -14,7 +14,6 @@ class JNautaConnection : Connection {
         withContext(Dispatchers.IO) {
             val authentication = Authentication(ConnectionBuilder.Method.OK_HTTP, account.username, account.password, null)
             val loginResult = authentication.login()
-
             val result = Connection.LoginResult()
             if (loginResult == null)
                 result.state = Connection.State.ERROR

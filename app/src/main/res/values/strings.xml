@@ -26,4 +26,9 @@
     <string name="button_configure">Configurar</string>
     <string name="button_start">Iniciar</string>
     <string name="button_close">Cerrar</string>
+    <string name="button_portal">Ir al portal</string>
+
+    <string name="captcha_title">Resuelva el captcha</string>
+    <string name="captcha_text">Captcha</string>
+    <string name="button_continue">Continuar</string>
 </resources>
