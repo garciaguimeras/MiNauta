@@ -25,11 +25,11 @@ class AccountActivity : MyAppCompatActivity() {
 
         viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(AccountViewModel::class.java)
 
-        usernameEdit = this.getViewById(R.id.usernameEdit)
+        usernameEdit = findViewById(R.id.usernameEdit)
 
-        passwordEdit = this.getViewById(R.id.passwordEdit)
+        passwordEdit = findViewById(R.id.passwordEdit)
 
-        acceptButton = this.getViewById(R.id.acceptButton)
+        acceptButton = findViewById(R.id.acceptButton)
         acceptButton.setOnClickListener {
             var username = usernameEdit.text.toString()
             val password = passwordEdit.text.toString()

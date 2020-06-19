@@ -1,11 +1,15 @@
 package dev.blackcat.minauta.ui.portal
 
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
-import android.webkit.WebSettings
 import android.webkit.WebView
+import android.widget.EditText
+import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.ui.MyAppCompatActivity
@@ -18,11 +22,15 @@ class PortalActivity : MyAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_portal)
+        supportActionBar!!.hide()
 
         webView = findViewById(R.id.webView)
 
         val viewModelFactory = PortalViewModelFactory(this, webView)
         viewModel = ViewModelProvider(this, viewModelFactory).get(PortalViewModel::class.java)
+        viewModel.captchaBitmap.observe(this, Observer<Bitmap> { bitmap ->
+            showCaptchaDialog(bitmap)
+        })
 
         configureWebView()
         viewModel.loadPortalPage()
@@ -47,5 +55,26 @@ class PortalActivity : MyAppCompatActivity() {
         }
 
         webView.webViewClient = PortalWebViewClient(viewModel)
+    }
+
+    fun showCaptchaDialog(bitmap: Bitmap) {
+        val view = layoutInflater.inflate(R.layout.dialog_captcha, null, false)
+        val captchaText: EditText = view.findViewById(R.id.captchaText)
+        val captchaImage: ImageView = view.findViewById(R.id.captchaImage)
+        captchaImage.setImageBitmap(bitmap)
+
+        AlertDialog.Builder(this)
+                .setTitle(R.string.captcha_title)
+                .setView(view)
+                .setCancelable(false)
+                .setPositiveButton(R.string.button_continue) { dialog, which ->
+                    viewModel.loginPage.loadLoginScript(captchaText.text.toString())
+                    dialog.dismiss()
+                }
+                .setNegativeButton(R.string.button_cancel) { dialog, which ->
+                    finish()
+                }
+                .create()
+                .show()
     }
 }

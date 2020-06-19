@@ -26,14 +26,14 @@ class SessionActivity : MyAppCompatActivity() {
         setContentView(R.layout.activity_session)
         viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(SessionViewModel::class.java)
 
-        closeButton = this.getViewById(R.id.closeButton)
+        closeButton = findViewById(R.id.closeButton)
         closeButton.setOnClickListener {
             closingDialog = showDialogWithText(R.string.closing_text)
             viewModel.closeSession(this)
         }
 
-        availableTimeTextView = this.getViewById(R.id.availableTimeTextView)
-        usedTimeTextView = this.getViewById(R.id.usedTimeTextView)
+        availableTimeTextView = findViewById(R.id.availableTimeTextView)
+        usedTimeTextView = findViewById(R.id.usedTimeTextView)
 
         viewModel.availableTime.observe(this, object : Observer<String> {
             override fun onChanged(text: String) {

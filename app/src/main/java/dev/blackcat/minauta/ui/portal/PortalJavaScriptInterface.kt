@@ -10,10 +10,10 @@ data class CaptchaBitmap (
         var height: Int,
         var bitmap: Map<Int, Byte>
 ) {
-    constructor() : this(0, 0, mapOf<Int, Byte>())
+    constructor() : this(width = 0, height = 0, bitmap = mapOf<Int, Byte>())
 }
 
-class PortalJavaScriptInterface(val viewModel: PortalViewModel) {
+class PortalJavaScriptInterface(private val viewModel: PortalViewModel) {
 
     @JavascriptInterface
     fun captcha(jsonObj: String) {
@@ -23,7 +23,8 @@ class PortalJavaScriptInterface(val viewModel: PortalViewModel) {
         val bytes = captchaBitmap.bitmap.values.toByteArray()
         val buffer = ByteBuffer.wrap(bytes)
         bitmap.copyPixelsFromBuffer(buffer)
-        viewModel.shopCaptchaDialog(bitmap)
+
+        viewModel.captchaBitmap.postValue(bitmap)
     }
 
 }

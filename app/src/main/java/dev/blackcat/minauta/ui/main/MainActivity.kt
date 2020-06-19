@@ -24,19 +24,19 @@ class MainActivity : MyAppCompatActivity() {
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(MainViewModel::class.java)
 
-        accountTextView = this.getViewById(R.id.accountTextView)
+        accountTextView = findViewById(R.id.accountTextView)
 
-        configureButton = this.getViewById(R.id.configureButton)
+        configureButton = findViewById(R.id.configureButton)
         configureButton.setOnClickListener {
             viewModel.startAccountActivity(this)
         }
 
-        portalButton = this.getViewById(R.id.portalButton)
+        portalButton = findViewById(R.id.portalButton)
         portalButton.setOnClickListener {
             viewModel.startPortalActivity(this)
         }
 
-        startButton = this.getViewById(R.id.startButton)
+        startButton = findViewById(R.id.startButton)
         startButton.setOnClickListener { viewModel.startSession(this) }
 
         viewModel.account.observe(this, object : Observer<Account> {

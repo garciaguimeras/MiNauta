@@ -31,4 +31,5 @@
     <string name="captcha_title">Resuelva el captcha</string>
     <string name="captcha_text">Captcha</string>
     <string name="button_continue">Continuar</string>
+    <string name="button_cancel">Cancelar</string>
 </resources>

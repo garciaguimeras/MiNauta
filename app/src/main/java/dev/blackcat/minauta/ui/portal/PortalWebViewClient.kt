@@ -1,5 +1,7 @@
 package dev.blackcat.minauta.ui.portal
 
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
@@ -10,6 +12,10 @@ class PortalWebViewClient(val viewModel: PortalViewModel) : WebViewClient() {
 
         if (url == null || view == null) return
         viewModel.onPageLoaded(url)
+    }
+
+    override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+        viewModel.errorPage.loadErrorPage()
     }
 
 }
