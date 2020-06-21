@@ -8,6 +8,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/primaryTextColor</item>
+        <item name="android:textColor">@color/nautaBlue</item>
         <!--
         <item name="android:navigationBarColor" tools:targetApi="21">@color/colorPrimaryDark</item>
         -->
