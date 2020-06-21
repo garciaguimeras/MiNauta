@@ -12,7 +12,7 @@
         <!--
         <item name="android:navigationBarColor" tools:targetApi="21">@color/colorPrimaryDark</item>
         -->
-        <item name="android:statusBarColor" tools:targetApi="21">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor" tools:targetApi="21">@color/nautaOrange</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
     </style>
 

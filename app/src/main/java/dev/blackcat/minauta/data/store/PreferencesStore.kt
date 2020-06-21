@@ -53,6 +53,7 @@ class PreferencesStore(internal var context: Context) {
         val PASSWORD = "dev.blackcat.minauta.Password"
         val LOGIN_PARAMS = "dev.blackcat.minauta.LoginParams"
         val START_TIME = "dev.blackcat.minauta.StartTime"
+        val MAX_TIME = "dev.blackcat.minauta.MaxTime"
     }
 
 }

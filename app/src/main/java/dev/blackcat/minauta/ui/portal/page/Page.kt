@@ -15,7 +15,7 @@ open class Page(val viewModel: PortalViewModel) {
     }
 
     fun loadUrl(url: String) {
-        viewModel.webView.loadUrl(url)
+        viewModel.urlToLoad.postValue(url)
     }
 
 }

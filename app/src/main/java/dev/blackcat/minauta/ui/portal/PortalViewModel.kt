@@ -9,34 +9,29 @@ import androidx.lifecycle.ViewModelProvider
 import dev.blackcat.minauta.ui.portal.page.ErrorPage
 import dev.blackcat.minauta.ui.portal.page.LoginPage
 
-class PortalViewModelFactory(
-        val activity: PortalActivity,
-        val webView: WebView) : ViewModelProvider.AndroidViewModelFactory(activity.application) {
+class PortalViewModelFactory(val activity: PortalActivity) : ViewModelProvider.AndroidViewModelFactory(activity.application) {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return PortalViewModel(activity, webView) as T
+        return PortalViewModel(activity) as T
     }
 }
 
 class PortalViewModel(
-        val activity: PortalActivity,
-        val webView: WebView) : AndroidViewModel(activity.application) {
+        val activity: PortalActivity) : AndroidViewModel(activity.application) {
 
     companion object {
-        val PORTAL_URL = "https://www.portal.nauta.cu/user/login/es-es"
+        val PORTAL_URL = "https://www.portal.nauta.cu"
+        val LOGIN_URL = "https://www.portal.nauta.cu/user/login/es-es"
     }
 
     val captchaBitmap: MutableLiveData<Bitmap> = MutableLiveData()
+    val urlToLoad: MutableLiveData<String> = MutableLiveData()
 
     val loginPage = LoginPage(this)
     val errorPage = ErrorPage(this)
 
-    fun loadPortalPage() {
-        webView.loadUrl(PORTAL_URL)
-    }
-
     fun onPageLoaded(url: String) {
-        if (url.equals(PORTAL_URL)) {
+        if (url.equals(LOGIN_URL)) {
             loginPage.loadCaptchaScript()
         }
     }

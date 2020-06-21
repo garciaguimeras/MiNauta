@@ -26,14 +26,17 @@ class PortalActivity : MyAppCompatActivity() {
 
         webView = findViewById(R.id.webView)
 
-        val viewModelFactory = PortalViewModelFactory(this, webView)
+        val viewModelFactory = PortalViewModelFactory(this)
         viewModel = ViewModelProvider(this, viewModelFactory).get(PortalViewModel::class.java)
         viewModel.captchaBitmap.observe(this, Observer<Bitmap> { bitmap ->
             showCaptchaDialog(bitmap)
         })
+        viewModel.urlToLoad.observe(this, Observer<String> { url ->
+            webView.loadUrl(url)
+        })
 
         configureWebView()
-        viewModel.loadPortalPage()
+        webView.loadUrl(PortalViewModel.PORTAL_URL)
     }
 
     private fun configureWebView() {
@@ -46,7 +49,6 @@ class PortalActivity : MyAppCompatActivity() {
 
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
         webView.setHorizontalScrollBarEnabled(false)
-        // webView.setWebViewClient(CustomWebViewClient(this))
         webView.addJavascriptInterface(PortalJavaScriptInterface(viewModel), "portal")
 
         CookieManager.getInstance().setAcceptCookie(true)
