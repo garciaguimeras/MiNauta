@@ -36,7 +36,7 @@ class MainViewModel(application: Application) : MyViewModel(application) {
         activity.startActivity(intent)
     }
 
-    fun startSession(activity: MainActivity) {
+    fun startSession(activity: MainActivity, sessionLimitEnabled: Boolean, sessionLimitTime: Int) {
         mainScope.launch {
             val connectingDialog = activity.showDialogWithText(R.string.connecting_text)
 
@@ -60,6 +60,7 @@ class MainViewModel(application: Application) : MyViewModel(application) {
 
             val now = Calendar.getInstance().timeInMillis
             store.setSession(result.session!!.loginParams, now)
+            store.setSessionLimit(sessionLimitEnabled, sessionLimitTime)
             startSessionActivity(activity)
         }
     }

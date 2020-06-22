@@ -35,24 +35,21 @@ class SessionActivity : MyAppCompatActivity() {
         availableTimeTextView = findViewById(R.id.availableTimeTextView)
         usedTimeTextView = findViewById(R.id.usedTimeTextView)
 
-        viewModel.availableTime.observe(this, object : Observer<String> {
-            override fun onChanged(text: String) {
-                availableTimeTextView.text = text
-            }
+        viewModel.availableTime.observe(this, Observer<String> {
+            text -> availableTimeTextView.text = text
         })
-        viewModel.usedTime.observe(this, object : Observer<String> {
-            override fun onChanged(text: String) {
-                usedTimeTextView.text = text
-            }
+        viewModel.usedTime.observe(this, Observer<String> {
+            text -> usedTimeTextView.text = text
         })
-        viewModel.logoutResult.observe(this, object : Observer<Connection.LogoutResult> {
-            override fun onChanged(result: Connection.LogoutResult) {
-                closingDialog?.dismiss()
-                if (result.state != Connection.State.OK) {
-                    this@SessionActivity.showOneButtonDialogWithText(R.string.logout_error)
-                }
-                viewModel.finishSession(this@SessionActivity)
+        viewModel.sessionExpired.observe(this, Observer<Boolean> { expired ->
+            viewModel.closeSession(this)
+        })
+        viewModel.logoutResult.observe(this, Observer<Connection.LogoutResult> { result ->
+            closingDialog?.dismiss()
+            if (result.state != Connection.State.OK) {
+                this@SessionActivity.showOneButtonDialogWithText(R.string.logout_error)
             }
+            viewModel.finishSession(this@SessionActivity)
         })
     }
 

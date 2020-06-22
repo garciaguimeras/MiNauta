@@ -9,14 +9,24 @@ class UsedTimeTask {
 
     interface OnTaskResult {
         fun onResult(time: String)
+        fun onSessionExpired()
     }
 
     suspend fun execute(account: Account, result: OnTaskResult?) =
         withContext(Dispatchers.Default) {
             Timer().scheduleAtFixedRate(object : TimerTask() {
+                var limitInMillis: Int =
+                        if (account.sessionLimitEnabled) account.sessionLimitTime * 60
+                        else 0
+
                 override fun run() {
                     val time = Calendar.getInstance().timeInMillis
                     val diff = (time - account.session!!.startTime) / 1000
+
+                    if (account.sessionLimitEnabled && diff >= limitInMillis) {
+                        result?.onSessionExpired()
+                        return
+                    }
 
                     var minutes = diff / 60
                     val seconds = diff % 60

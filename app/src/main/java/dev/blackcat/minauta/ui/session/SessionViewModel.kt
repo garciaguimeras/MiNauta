@@ -20,6 +20,7 @@ class SessionViewModel(application: Application) : MyViewModel(application) {
 
     var availableTime: MutableLiveData<String> = MutableLiveData()
     var usedTime: MutableLiveData<String> = MutableLiveData()
+    var sessionExpired: MutableLiveData<Boolean> = MutableLiveData()
     var logoutResult: MutableLiveData<Connection.LogoutResult> = MutableLiveData()
 
     fun startSession(activity: Activity) {
@@ -39,6 +40,10 @@ class SessionViewModel(application: Application) : MyViewModel(application) {
         mainScope.launch {
             val usedTimeText = activity.getString(R.string.used_time_text)
             UsedTimeTask().execute(store.account, object : UsedTimeTask.OnTaskResult {
+                override fun onSessionExpired() {
+                    sessionExpired.postValue(true)
+                }
+
                 override fun onResult(time: String) {
                     usedTime.postValue("${usedTimeText} ${time}")
                 }
