@@ -12,5 +12,7 @@
 
     <color name="nautaOrange">#e48d06</color>
     <color name="nautaBlue">#03006c</color>
+    <color name="nautaBlueDisabled">#aaaacc</color>
     <color name="nautaRed">#c10005</color>
+
 </resources>

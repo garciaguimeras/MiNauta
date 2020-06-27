@@ -2,7 +2,7 @@ package dev.blackcat.minauta.ui.account
 
 import android.app.Activity
 import android.app.Application
-import dev.blackcat.minauta.data.store.PreferencesStore
+import dev.blackcat.minauta.data.PreferencesStore
 import dev.blackcat.minauta.ui.MyViewModel
 
 class AccountViewModel(application: Application) : MyViewModel(application) {

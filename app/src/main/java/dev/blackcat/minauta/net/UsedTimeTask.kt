@@ -1,6 +1,7 @@
 package dev.blackcat.minauta.net
 
 import dev.blackcat.minauta.data.Account
+import dev.blackcat.minauta.data.SessionTimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -15,15 +16,22 @@ class UsedTimeTask {
     suspend fun execute(account: Account, result: OnTaskResult?) =
         withContext(Dispatchers.Default) {
             Timer().scheduleAtFixedRate(object : TimerTask() {
-                var limitInMillis: Int =
-                        if (account.sessionLimitEnabled) account.sessionLimitTime * 60
+                val sessionLimit = account.sessionLimit
+                var limitInSeconds =
+                        if (sessionLimit.enabled) {
+                            when (sessionLimit.timeUnit) {
+                                SessionTimeUnit.SECONDS -> { sessionLimit.time }
+                                SessionTimeUnit.MINUTES -> { sessionLimit.time * 60 }
+                                SessionTimeUnit.HOURS -> { sessionLimit.time * 3600 }
+                            }
+                        }
                         else 0
 
                 override fun run() {
                     val time = Calendar.getInstance().timeInMillis
                     val diff = (time - account.session!!.startTime) / 1000
 
-                    if (account.sessionLimitEnabled && diff >= limitInMillis) {
+                    if (sessionLimit.enabled && diff >= limitInSeconds) {
                         result?.onSessionExpired()
                         return
                     }

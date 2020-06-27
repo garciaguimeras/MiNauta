@@ -3,7 +3,8 @@ package dev.blackcat.minauta.ui.main
 import android.app.Application
 import android.content.Intent
 import dev.blackcat.minauta.R
-import dev.blackcat.minauta.data.store.PreferencesStore
+import dev.blackcat.minauta.data.SessionLimit
+import dev.blackcat.minauta.data.PreferencesStore
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.net.ConnectionFactory
 import dev.blackcat.minauta.net.JNautaConnection
@@ -13,7 +14,6 @@ import dev.blackcat.minauta.ui.portal.PortalActivity
 import dev.blackcat.minauta.ui.session.SessionActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -36,7 +36,7 @@ class MainViewModel(application: Application) : MyViewModel(application) {
         activity.startActivity(intent)
     }
 
-    fun startSession(activity: MainActivity, sessionLimitEnabled: Boolean, sessionLimitTime: Int) {
+    fun startSession(activity: MainActivity, sessionLimit: SessionLimit) {
         mainScope.launch {
             val connectingDialog = activity.showDialogWithText(R.string.connecting_text)
 
@@ -60,9 +60,14 @@ class MainViewModel(application: Application) : MyViewModel(application) {
 
             val now = Calendar.getInstance().timeInMillis
             store.setSession(result.session!!.loginParams, now)
-            store.setSessionLimit(sessionLimitEnabled, sessionLimitTime)
+            store.setSessionLimit(sessionLimit)
             startSessionActivity(activity)
         }
+    }
+
+    fun saveSessionLimit(activity: MainActivity, sessionLimit: SessionLimit) {
+        val store = PreferencesStore(activity)
+        store.setSessionLimit(sessionLimit)
     }
 
 }

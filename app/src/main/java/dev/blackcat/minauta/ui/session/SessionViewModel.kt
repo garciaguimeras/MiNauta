@@ -5,7 +5,7 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.net.UsedTimeTask
-import dev.blackcat.minauta.data.store.PreferencesStore
+import dev.blackcat.minauta.data.PreferencesStore
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.net.ConnectionFactory
 import dev.blackcat.minauta.net.JNautaConnection

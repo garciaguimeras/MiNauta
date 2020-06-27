@@ -1,6 +1,6 @@
 package dev.blackcat.minauta.ui.portal.page
 
-import dev.blackcat.minauta.data.store.PreferencesStore
+import dev.blackcat.minauta.data.PreferencesStore
 import dev.blackcat.minauta.ui.portal.PortalViewModel
 
 class LoginPage(viewModel: PortalViewModel) : Page(viewModel) {

@@ -7,13 +7,14 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/nautaBlue</item>
-        <item name="android:textColor">@color/nautaBlue</item>
-        <!--
-        <item name="android:navigationBarColor" tools:targetApi="21">@color/colorPrimaryDark</item>
-        -->
+
+        <item name="android:textColorPrimary">@color/widget</item>
+        <item name="android:textColor">@color/widget</item>
+
         <item name="android:statusBarColor" tools:targetApi="21">@color/nautaOrange</item>
+        <item name="android:navigationBarColor" tools:targetApi="21">@color/nautaOrange</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

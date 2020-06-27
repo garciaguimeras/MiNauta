@@ -11,7 +11,7 @@ enum class AccountState {
 data class Account(
         var username: String?,
         var password: String?,
-        var sessionLimitEnabled: Boolean,
-        var sessionLimitTime: Int,
+
         var session: Session?,
+        var sessionLimit: SessionLimit,
         var state: AccountState) : Serializable

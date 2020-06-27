@@ -3,7 +3,7 @@
 
     <string name="account_activity_text">Cuenta Nauta</string>
     <string name="configure_account_text">Configure su cuenta de Nauta</string>
-    <string name="start_session_text">Iniciar su sesión de Nauta</string>
+    <string name="start_session_text">Iniciar sesión de Nauta</string>
     <string name="close_session_text">Cerrar su sesión de Nauta</string>
     <string name="available_time_text">Tiempo disponible:</string>
     <string name="used_time_text">Tiempo utilizado:</string>
@@ -33,5 +33,8 @@
     <string name="button_continue">Continuar</string>
     <string name="button_cancel">Cancelar</string>
     <string name="session_limit_text">Límite de sesión:</string>
-    <string name="minutes_text">minutos.</string>
+
+    <string name="seconds_text">segundos</string>
+    <string name="minutes_text">minutos</string>
+    <string name="hours_text">horas</string>
 </resources>

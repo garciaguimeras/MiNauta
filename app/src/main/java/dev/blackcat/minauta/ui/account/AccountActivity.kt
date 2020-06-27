@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.Account
 
-import dev.blackcat.minauta.data.store.PreferencesStore
 import dev.blackcat.minauta.ui.MyAppCompatActivity
 
 class AccountActivity : MyAppCompatActivity() {

@@ -2,15 +2,15 @@ package dev.blackcat.minauta.ui.main
 
 import android.os.Bundle
 import android.text.Editable
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
+import android.view.View
+import android.widget.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.AccountState
+import dev.blackcat.minauta.data.SessionLimit
+import dev.blackcat.minauta.data.SessionTimeUnit
 import dev.blackcat.minauta.ui.MyAppCompatActivity
 
 class MainActivity : MyAppCompatActivity() {
@@ -24,7 +24,7 @@ class MainActivity : MyAppCompatActivity() {
 
     lateinit var sessionLimitCheckBox: CheckBox
     lateinit var sessionLimitEditText: EditText
-    lateinit var sessionLimitTextView: TextView
+    lateinit var sessionLimitSpinner: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,46 +45,69 @@ class MainActivity : MyAppCompatActivity() {
 
         sessionLimitEditText = findViewById(R.id.sessionLimitEditText)
         sessionLimitEditText.text = Editable.Factory.getInstance().newEditable("0")
-        sessionLimitEditText.isEnabled = false
+        sessionLimitEditText.visibility = View.GONE
 
-        sessionLimitTextView = findViewById(R.id.sessionLimitTextView)
-        sessionLimitTextView.isEnabled = false
+        sessionLimitSpinner = findViewById(R.id.sessionLimitSpinner)
+        sessionLimitSpinner.visibility = View.GONE
 
         sessionLimitCheckBox = findViewById(R.id.sessionLimitCheckBox)
         sessionLimitCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            sessionLimitEditText.isEnabled = isChecked
-            sessionLimitTextView.isEnabled = isChecked
+            val visibility = if (isChecked) View.VISIBLE else View.GONE
+            sessionLimitEditText.visibility = visibility
+            sessionLimitSpinner.visibility = visibility
         }
 
         startButton = findViewById(R.id.startButton)
         startButton.setOnClickListener {
-            val time = sessionLimitEditText.text.toString().toInt()
-            viewModel.startSession(this, sessionLimitCheckBox.isChecked, time)
+            val sessionLimit = createSessionLimit()
+            viewModel.startSession(this, sessionLimit)
         }
 
         viewModel.account.observe(this, Observer<Account> { account ->
-            sessionLimitEditText.text = Editable.Factory.getInstance().newEditable("${account.sessionLimitTime}")
-            sessionLimitCheckBox.isChecked = account.sessionLimitEnabled
-
-            when (account.state) {
-                AccountState.ACCOUNT_NOT_SET -> {
-                    accountTextView.setText(R.string.configure_account_text)
-                    startButton.isEnabled = false
-                }
-                AccountState.SESSION_NOT_STARTED -> {
-                    accountTextView.text = account.username
-                    startButton.isEnabled = true
-                }
-                AccountState.SESSION_STARTED -> {
-                    viewModel.startSessionActivity(this@MainActivity)
-                }
-            }
+            setAccountState(account)
+            setSessionLimit(account.sessionLimit)
         })
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.checkAccount(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val sessionLimit = createSessionLimit()
+        viewModel.saveSessionLimit(this, sessionLimit)
+    }
+
+    private fun setAccountState(account: Account) {
+        when (account.state) {
+            AccountState.ACCOUNT_NOT_SET -> {
+                accountTextView.setText(R.string.configure_account_text)
+                startButton.isEnabled = false
+                portalButton.isEnabled = false
+            }
+            AccountState.SESSION_NOT_STARTED -> {
+                accountTextView.text = account.username
+                startButton.isEnabled = true
+                portalButton.isEnabled = true
+            }
+            AccountState.SESSION_STARTED -> {
+                viewModel.startSessionActivity(this@MainActivity)
+            }
+        }
+    }
+
+    private fun setSessionLimit(sessionLimit: SessionLimit) {
+        sessionLimitCheckBox.isChecked = sessionLimit.enabled
+        sessionLimitEditText.text = Editable.Factory.getInstance().newEditable("${sessionLimit.time}")
+        sessionLimitSpinner.setSelection(sessionLimit.timeUnit.value)
+    }
+
+    private fun createSessionLimit(): SessionLimit {
+        val unit = SessionTimeUnit.fromInt(sessionLimitSpinner.selectedItemPosition)
+        val time = sessionLimitEditText.text.toString().toInt()
+        return SessionLimit(sessionLimitCheckBox.isChecked, time, unit)
     }
 
 }
