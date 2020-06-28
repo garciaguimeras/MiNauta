@@ -1,7 +1,6 @@
 package dev.blackcat.minauta.ui.portal
 
 import android.graphics.Bitmap
-import android.webkit.WebView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,8 +15,7 @@ class PortalViewModelFactory(val activity: PortalActivity) : ViewModelProvider.A
     }
 }
 
-class PortalViewModel(
-        val activity: PortalActivity) : AndroidViewModel(activity.application) {
+class PortalViewModel(val activity: PortalActivity) : AndroidViewModel(activity.application) {
 
     companion object {
         val PORTAL_URL = "https://www.portal.nauta.cu"

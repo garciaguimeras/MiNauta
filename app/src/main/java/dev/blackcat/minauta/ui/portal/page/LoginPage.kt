@@ -1,6 +1,7 @@
 package dev.blackcat.minauta.ui.portal.page
 
-import dev.blackcat.minauta.data.PreferencesStore
+import dev.blackcat.minauta.MiNautaApp
+import dev.blackcat.minauta.PreferencesStore
 import dev.blackcat.minauta.ui.portal.PortalViewModel
 
 class LoginPage(viewModel: PortalViewModel) : Page(viewModel) {
@@ -12,7 +13,8 @@ class LoginPage(viewModel: PortalViewModel) : Page(viewModel) {
     }
 
     fun loadLoginScript(captcha: String) {
-        val account = PreferencesStore(viewModel.getApplication()).account
+        val preferencesStore = PreferencesStore(viewModel.getApplication())
+        val account = preferencesStore.account
         val loginJs = loadJsFile("login.js")
         val code = "javascript:(($loginJs)('${account.username}', '${account.password}', '$captcha'))"
         loadUrl(code)

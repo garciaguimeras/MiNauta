@@ -29,7 +29,7 @@ class FakeConnection : Connection {
 
     override suspend fun getAvailableTime(account: Account): Connection.AvailableTimeResult {
         val result = Connection.AvailableTimeResult()
-        result.availableTime = "02:30:15"
+        result.availableTime = "time@fake.connection"
         result.state = Connection.State.OK
 
         return result

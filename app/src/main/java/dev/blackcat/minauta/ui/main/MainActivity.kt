@@ -64,14 +64,14 @@ class MainActivity : MyAppCompatActivity() {
         }
 
         viewModel.account.observe(this, Observer<Account> { account ->
-            setAccountState(account)
+            checkAccountState(account)
             setSessionLimit(account.sessionLimit)
         })
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.checkAccount(this)
+        viewModel.checkAccount()
     }
 
     override fun onPause() {
@@ -80,7 +80,7 @@ class MainActivity : MyAppCompatActivity() {
         viewModel.saveSessionLimit(this, sessionLimit)
     }
 
-    private fun setAccountState(account: Account) {
+    private fun checkAccountState(account: Account) {
         when (account.state) {
             AccountState.ACCOUNT_NOT_SET -> {
                 accountTextView.setText(R.string.configure_account_text)

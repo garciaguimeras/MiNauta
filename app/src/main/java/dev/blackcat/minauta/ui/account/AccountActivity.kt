@@ -45,7 +45,7 @@ class AccountActivity : MyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.checkAccount(this)
+        viewModel.checkAccount()
     }
 
 }

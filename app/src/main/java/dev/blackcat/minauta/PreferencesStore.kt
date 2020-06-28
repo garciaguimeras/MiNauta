@@ -1,13 +1,16 @@
-package dev.blackcat.minauta.data
+package dev.blackcat.minauta
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import dev.blackcat.minauta.data.*
 
-class PreferencesStore(private val context: Context) {
+class PreferencesStore(context: Context) {
+
+    private val prefs = context.getSharedPreferences(MiNautaApp::class.java.name, Context.MODE_PRIVATE)
 
     val account: Account
         get() {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(this.context)
             val username = prefs.getString(USERNAME, "")
             val password = prefs.getString(PASSWORD, "")
             if (username == "") {
@@ -31,7 +34,6 @@ class PreferencesStore(private val context: Context) {
         }
 
     fun getSessionLimit(): SessionLimit {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this.context)
         val sessionLimitEnabled = prefs.getBoolean(SESSION_LIMIT_ENABLED, false)
         val sessionLimitTime = prefs.getInt(SESSION_LIMIT_TIME, 0)
         val sessionLimitTimeUnit = prefs.getInt(SESSION_LIMIT_TIME_UNIT, SessionTimeUnit.MINUTES.value)
@@ -39,7 +41,6 @@ class PreferencesStore(private val context: Context) {
     }
 
     fun setAccount(username: String, password: String) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this.context)
         val editor = prefs.edit()
         editor.putString(USERNAME, username)
         editor.putString(PASSWORD, password)
@@ -47,7 +48,6 @@ class PreferencesStore(private val context: Context) {
     }
 
     fun setSessionLimit(sessionLimit: SessionLimit) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this.context)
         val editor = prefs.edit()
         editor.putBoolean(SESSION_LIMIT_ENABLED, sessionLimit.enabled)
         editor.putInt(SESSION_LIMIT_TIME, sessionLimit.time)
@@ -56,7 +56,6 @@ class PreferencesStore(private val context: Context) {
     }
 
     fun setSession(loginParams: String, startTime: Long) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this.context)
         val editor = prefs.edit()
         editor.putString(LOGIN_PARAMS, loginParams)
         editor.putLong(START_TIME, startTime)

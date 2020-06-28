@@ -8,7 +8,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 
 import dev.blackcat.minauta.R
+import dev.blackcat.minauta.data.Account
+import dev.blackcat.minauta.data.AccountState
 import dev.blackcat.minauta.net.Connection
+import dev.blackcat.minauta.service.UsedTimeService
 import dev.blackcat.minauta.ui.MyAppCompatActivity
 
 class SessionActivity : MyAppCompatActivity() {
@@ -29,34 +32,53 @@ class SessionActivity : MyAppCompatActivity() {
         closeButton = findViewById(R.id.closeButton)
         closeButton.setOnClickListener {
             closingDialog = showDialogWithText(R.string.closing_text)
-            viewModel.closeSession(this)
+            viewModel.closeSession()
         }
 
         availableTimeTextView = findViewById(R.id.availableTimeTextView)
         usedTimeTextView = findViewById(R.id.usedTimeTextView)
 
-        viewModel.availableTime.observe(this, Observer<String> {
-            text -> availableTimeTextView.text = text
+        viewModel.account.observe(this, Observer<Account> { account ->
+            if (account.state != AccountState.SESSION_STARTED) {
+                finish()
+            }
         })
-        viewModel.usedTime.observe(this, Observer<String> {
-            text -> usedTimeTextView.text = text
+        viewModel.availableTime.observe(this, Observer<String> { text ->
+            val availableTimeText = getString(R.string.available_time_text)
+            availableTimeTextView.text = "${availableTimeText} ${text}"
         })
-        viewModel.sessionExpired.observe(this, Observer<Boolean> { expired ->
-            viewModel.closeSession(this)
+        viewModel.usedTime.observe(this, Observer<String> { text ->
+            val usedTimeText = getString(R.string.used_time_text)
+            usedTimeTextView.text = "${usedTimeText} ${text}"
         })
-        viewModel.logoutResult.observe(this, Observer<Connection.LogoutResult> { result ->
+        viewModel.logoutResult.observe(this, Observer<Connection.State> { state ->
             closingDialog?.dismiss()
-            if (result.state != Connection.State.OK) {
+            if (state != Connection.State.OK) {
                 this@SessionActivity.showOneButtonDialogWithText(R.string.logout_error)
             }
-            viewModel.finishSession(this@SessionActivity)
+            finish()
         })
+
+        if (intent.action == UsedTimeService.SESSION_EXPIRED_ACTION) {
+            val stateStr = intent.getStringExtra(UsedTimeService.LOGOUT_STATE) ?: ""
+            val state = Connection.State.valueOf(stateStr)
+            viewModel.setSessionExpired(state)
+        }
+        else {
+            viewModel.startUsedTimeService()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.startSession(this)
+        viewModel.checkAccount()
+        viewModel.registerBroadcastReceiver(this)
+        viewModel.startSession()
     }
 
+    override fun onPause() {
+        super.onPause()
+        viewModel.unregisterBroadcastReceiver(this)
+    }
 
 }
