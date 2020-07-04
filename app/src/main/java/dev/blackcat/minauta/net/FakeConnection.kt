@@ -20,14 +20,14 @@ class FakeConnection : Connection {
         return result
     }
 
-    override suspend fun logout(account: Account): Connection.LogoutResult {
+    override suspend fun logout(account: Account, session: Session): Connection.LogoutResult {
         val result = Connection.LogoutResult()
         result.state = Connection.State.OK
 
         return result
     }
 
-    override suspend fun getAvailableTime(account: Account): Connection.AvailableTimeResult {
+    override suspend fun getAvailableTime(account: Account, session: Session): Connection.AvailableTimeResult {
         val result = Connection.AvailableTimeResult()
         result.availableTime = "time@fake.connection"
         result.state = Connection.State.OK

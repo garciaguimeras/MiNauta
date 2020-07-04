@@ -1,20 +1,20 @@
 package dev.blackcat.minauta.ui.session
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-
 import dev.blackcat.minauta.R
-import dev.blackcat.minauta.data.Account
-import dev.blackcat.minauta.data.AccountState
 import dev.blackcat.minauta.net.Connection
-import dev.blackcat.minauta.service.UsedTimeService
 import dev.blackcat.minauta.ui.MyAppCompatActivity
 
 class SessionActivity : MyAppCompatActivity() {
+
+    companion object {
+        const val SHOULD_START_SERVICE = "dev.blackcat.minauta.ui.session.ShouldStartService"
+    }
 
     lateinit var viewModel: SessionViewModel
 
@@ -23,62 +23,69 @@ class SessionActivity : MyAppCompatActivity() {
     lateinit var usedTimeTextView: TextView
 
     var closingDialog: AlertDialog? = null
+    var shouldStartService = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_session)
-        viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(SessionViewModel::class.java)
+        viewModel = SessionViewModelFactory(this).create(SessionViewModel::class.java)
+        shouldStartService = intent.getBooleanExtra(SHOULD_START_SERVICE, false)
 
         closeButton = findViewById(R.id.closeButton)
         closeButton.setOnClickListener {
             closingDialog = showDialogWithText(R.string.closing_text)
-            viewModel.closeSession()
+            viewModel.sendCloseSession()
         }
 
         availableTimeTextView = findViewById(R.id.availableTimeTextView)
         usedTimeTextView = findViewById(R.id.usedTimeTextView)
 
-        viewModel.account.observe(this, Observer<Account> { account ->
-            if (account.state != AccountState.SESSION_STARTED) {
-                finish()
+        viewModel.isServiceRunning.observe(this, Observer { running ->
+            if (shouldStartService && !running) {
+                viewModel.startService(this)
+                shouldStartService = false
             }
         })
-        viewModel.availableTime.observe(this, Observer<String> { text ->
+
+        viewModel.loginResult.observe(this, Observer { state ->
+            if (state != Connection.State.OK) {
+                var resId = R.string.login_error
+                when (state) {
+                    Connection.State.ALREADY_CONNECTED -> resId = R.string.already_connected_error
+                    Connection.State.NO_MONEY -> resId = R.string.no_money_error
+                    Connection.State.INCORRECT_PASSWORD -> resId = R.string.incorrect_password_error
+                    Connection.State.UNKNOWN_USERNAME -> resId = R.string.unknown_username_error
+                }
+                showOneButtonDialogWithText(resId)
+            }
+        })
+        viewModel.availableTime.observe(this, Observer { result ->
             val availableTimeText = getString(R.string.available_time_text)
+            var text = if (result.state == Connection.State.OK) result.availableTime!! else "--:--:--"
             availableTimeTextView.text = "${availableTimeText} ${text}"
         })
-        viewModel.usedTime.observe(this, Observer<String> { text ->
+        viewModel.usedTime.observe(this, Observer { text ->
             val usedTimeText = getString(R.string.used_time_text)
             usedTimeTextView.text = "${usedTimeText} ${text}"
         })
-        viewModel.logoutResult.observe(this, Observer<Connection.State> { state ->
+        viewModel.logoutResult.observe(this, Observer { state ->
             closingDialog?.dismiss()
             if (state != Connection.State.OK) {
                 this@SessionActivity.showOneButtonDialogWithText(R.string.logout_error)
             }
-            finish()
+            this@SessionActivity.finish()
         })
 
-        if (intent.action == UsedTimeService.SESSION_EXPIRED_ACTION) {
-            val stateStr = intent.getStringExtra(UsedTimeService.LOGOUT_STATE) ?: ""
-            val state = Connection.State.valueOf(stateStr)
-            viewModel.setSessionExpired(state)
-        }
-        else {
-            viewModel.startUsedTimeService()
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.checkAccount()
-        viewModel.registerBroadcastReceiver(this)
-        viewModel.startSession()
+        viewModel.bindService(this)
     }
 
     override fun onPause() {
         super.onPause()
-        viewModel.unregisterBroadcastReceiver(this)
+        viewModel.unbindService(this)
     }
 
 }

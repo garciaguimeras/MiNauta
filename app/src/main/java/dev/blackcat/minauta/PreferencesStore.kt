@@ -15,22 +15,11 @@ class PreferencesStore(context: Context) {
             val password = prefs.getString(PASSWORD, "")
             if (username == "") {
                 val sessionLimit = SessionLimit(false, 0, SessionTimeUnit.MINUTES)
-                return Account(null, null, null, sessionLimit, AccountState.ACCOUNT_NOT_SET)
-            }
-
-            var state = AccountState.SESSION_NOT_STARTED
-            var session: Session? = null
-            val loginParams = prefs.getString(LOGIN_PARAMS, "")
-            val startTime = prefs.getLong(START_TIME, 0)
-            if (loginParams != "") {
-                session = Session()
-                session.loginParams = loginParams!!
-                session.startTime = startTime
-                state = AccountState.SESSION_STARTED
+                return Account(null, null, sessionLimit, initialized = false)
             }
 
             val sessionLimit = getSessionLimit()
-            return Account(username!!, password!!, session, sessionLimit, state)
+            return Account(username!!, password!!, sessionLimit, initialized = true)
         }
 
     fun getSessionLimit(): SessionLimit {
@@ -55,19 +44,9 @@ class PreferencesStore(context: Context) {
         editor.apply()
     }
 
-    fun setSession(loginParams: String, startTime: Long) {
-        val editor = prefs.edit()
-        editor.putString(LOGIN_PARAMS, loginParams)
-        editor.putLong(START_TIME, startTime)
-        editor.apply()
-    }
-
     companion object {
-
         val USERNAME = "dev.blackcat.minauta.Username"
         val PASSWORD = "dev.blackcat.minauta.Password"
-        val LOGIN_PARAMS = "dev.blackcat.minauta.LoginParams"
-        val START_TIME = "dev.blackcat.minauta.StartTime"
         val SESSION_LIMIT_ENABLED = "dev.blackcat.minauta.SessionLimitEnabled"
         val SESSION_LIMIT_TIME = "dev.blackcat.minauta.SessionLimitTime"
         val SESSION_LIMIT_TIME_UNIT = "dev.blackcat.minauta.SessionLimitTimeUnit"

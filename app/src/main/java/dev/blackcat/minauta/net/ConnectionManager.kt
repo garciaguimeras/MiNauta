@@ -1,6 +1,7 @@
 package dev.blackcat.minauta.net
 
 import dev.blackcat.minauta.data.Account
+import dev.blackcat.minauta.data.Session
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -9,8 +10,8 @@ import java.util.*
 
 class ConnectionManager(val account: Account) {
 
-    //val connection = ConnectionFactory.createSessionProducer(JNautaConnection::class.java)!!
-    val connection = ConnectionFactory.createSessionProducer(FakeConnection::class.java)!!
+    val connection = ConnectionFactory.createSessionProducer(JNautaConnection::class.java)!!
+    //val connection = ConnectionFactory.createSessionProducer(FakeConnection::class.java)!!
 
     fun login(): Connection.LoginResult {
         val scope = CoroutineScope(Dispatchers.IO).async {
@@ -25,9 +26,9 @@ class ConnectionManager(val account: Account) {
         return result!!
     }
 
-    fun getAvailableTime(): Connection.AvailableTimeResult {
+    fun getAvailableTime(session: Session): Connection.AvailableTimeResult {
         val scope = CoroutineScope(Dispatchers.IO).async {
-            val result = connection.getAvailableTime(account)
+            val result = connection.getAvailableTime(account, session)
             return@async result
         }
 
@@ -38,9 +39,9 @@ class ConnectionManager(val account: Account) {
         return result!!
     }
 
-    fun logout(): Connection.LogoutResult {
+    fun logout(session: Session): Connection.LogoutResult {
         val scope = CoroutineScope(Dispatchers.IO).async {
-            val result = connection.logout(account)
+            val result = connection.logout(account, session)
             return@async result
         }
 

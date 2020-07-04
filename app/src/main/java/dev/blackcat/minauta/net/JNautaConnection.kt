@@ -38,20 +38,20 @@ class JNautaConnection : Connection {
             return@withContext result
         }
 
-    override suspend fun logout(account: Account): Connection.LogoutResult =
+    override suspend fun logout(account: Account, session: Session): Connection.LogoutResult =
         withContext(Dispatchers.IO) {
             val authentication = Authentication(ConnectionBuilder.Method.OK_HTTP, account.username, account.password, null)
-            val logoutResult = authentication.logout(account.session!!.loginParams)
+            val logoutResult = authentication.logout(session.loginParams)
 
             val result = Connection.LogoutResult()
             result.state = if (logoutResult) Connection.State.OK else Connection.State.ERROR
             return@withContext result
         }
 
-    override suspend fun getAvailableTime(account: Account): Connection.AvailableTimeResult =
+    override suspend fun getAvailableTime(account: Account, session: Session): Connection.AvailableTimeResult =
         withContext(Dispatchers.IO) {
             val authentication = Authentication(ConnectionBuilder.Method.OK_HTTP, account.username, account.password, null)
-            val time = authentication.getAvailableTime(account.session!!.loginParams)
+            val time = authentication.getAvailableTime(session!!.loginParams)
 
             val result = Connection.AvailableTimeResult()
             result.state = if (time != null) Connection.State.OK else Connection.State.ERROR

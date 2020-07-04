@@ -2,13 +2,13 @@ package dev.blackcat.minauta.ui.main
 
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.Account
-import dev.blackcat.minauta.data.AccountState
 import dev.blackcat.minauta.data.SessionLimit
 import dev.blackcat.minauta.data.SessionTimeUnit
 import dev.blackcat.minauta.ui.MyAppCompatActivity
@@ -63,37 +63,41 @@ class MainActivity : MyAppCompatActivity() {
             viewModel.startSession(this, sessionLimit)
         }
 
-        viewModel.account.observe(this, Observer<Account> { account ->
+        viewModel.account.observe(this, Observer { account ->
             checkAccountState(account)
             setSessionLimit(account.sessionLimit)
+        })
+
+        viewModel.isServiceRunning.observe(this, Observer { running ->
+            if (running) {
+                viewModel.startSessionActivity(this)
+            }
         })
     }
 
     override fun onResume() {
         super.onResume()
+        viewModel.bindService(this)
         viewModel.checkAccount()
     }
 
     override fun onPause() {
         super.onPause()
         val sessionLimit = createSessionLimit()
-        viewModel.saveSessionLimit(this, sessionLimit)
+        viewModel.saveSessionLimit(sessionLimit)
     }
 
     private fun checkAccountState(account: Account) {
-        when (account.state) {
-            AccountState.ACCOUNT_NOT_SET -> {
+        when (account.initialized) {
+            false -> {
                 accountTextView.setText(R.string.configure_account_text)
                 startButton.isEnabled = false
                 portalButton.isEnabled = false
             }
-            AccountState.SESSION_NOT_STARTED -> {
+            true -> {
                 accountTextView.text = account.username
                 startButton.isEnabled = true
                 portalButton.isEnabled = true
-            }
-            AccountState.SESSION_STARTED -> {
-                viewModel.startSessionActivity(this@MainActivity)
             }
         }
     }

@@ -4,6 +4,7 @@
     package="dev.blackcat.minauta">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".MiNautaApp"
@@ -41,10 +42,8 @@
         <activity
             android:name=".ui.portal.PortalActivity"></activity>
         <service
-            android:name=".service.UsedTimeService"
-            android:stopWithTask="false"
-            android:isolatedProcess="false"/>
-
+            android:name=".service.SessionService"
+            android:stopWithTask="false"/>
     </application>
 
 </manifest>

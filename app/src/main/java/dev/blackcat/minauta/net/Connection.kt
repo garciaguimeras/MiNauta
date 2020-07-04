@@ -2,6 +2,7 @@ package dev.blackcat.minauta.net
 
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
+import java.io.Serializable
 
 interface Connection {
 
@@ -15,22 +16,22 @@ interface Connection {
         IS_GOOGLE
     }
 
-    class LoginResult {
+    class LoginResult : Serializable {
         var session: Session? = null
         var state: State? = null
     }
 
-    class LogoutResult {
+    class LogoutResult : Serializable {
         var state: State? = null
     }
 
-    class AvailableTimeResult {
+    class AvailableTimeResult : Serializable {
         var state: State? = null
         var availableTime: String? = null
     }
 
     suspend fun login(account: Account): LoginResult
-    suspend fun logout(account: Account): LogoutResult
-    suspend fun getAvailableTime(account: Account): AvailableTimeResult
+    suspend fun logout(account: Account, session: Session): LogoutResult
+    suspend fun getAvailableTime(account: Account, session: Session): AvailableTimeResult
 
 }
