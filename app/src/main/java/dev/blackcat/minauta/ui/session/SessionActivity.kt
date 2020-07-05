@@ -1,11 +1,14 @@
 package dev.blackcat.minauta.ui.session
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
+import com.google.android.material.snackbar.Snackbar
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.ui.MyAppCompatActivity
@@ -18,6 +21,7 @@ class SessionActivity : MyAppCompatActivity() {
 
     lateinit var viewModel: SessionViewModel
 
+    lateinit var parentLayout: ConstraintLayout
     lateinit var closeButton: Button
     lateinit var availableTimeTextView: TextView
     lateinit var usedTimeTextView: TextView
@@ -30,6 +34,8 @@ class SessionActivity : MyAppCompatActivity() {
         setContentView(R.layout.activity_session)
         viewModel = SessionViewModelFactory(this).create(SessionViewModel::class.java)
         shouldStartService = intent.getBooleanExtra(SHOULD_START_SERVICE, false)
+
+        parentLayout = findViewById(R.id.parentLayout)
 
         closeButton = findViewById(R.id.closeButton)
         closeButton.setOnClickListener {
@@ -86,6 +92,12 @@ class SessionActivity : MyAppCompatActivity() {
     override fun onPause() {
         super.onPause()
         viewModel.unbindService(this)
+    }
+
+    override fun onBackPressed() {
+        Snackbar.make(parentLayout, R.string.close_session_warning, Snackbar.LENGTH_LONG)
+                .setTextColor(getColor(R.color.colorPrimary))
+                .show()
     }
 
 }

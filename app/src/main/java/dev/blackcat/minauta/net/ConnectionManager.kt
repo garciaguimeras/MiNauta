@@ -10,8 +10,8 @@ import java.util.*
 
 class ConnectionManager(val account: Account) {
 
-    val connection = ConnectionFactory.createSessionProducer(JNautaConnection::class.java)!!
-    //val connection = ConnectionFactory.createSessionProducer(FakeConnection::class.java)!!
+    //val connection = ConnectionFactory.createSessionProducer(JNautaConnection::class.java)!!
+    val connection = ConnectionFactory.createSessionProducer(FakeConnection::class.java)!!
 
     fun login(): Connection.LoginResult {
         val scope = CoroutineScope(Dispatchers.IO).async {

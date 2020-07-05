@@ -4,13 +4,14 @@
     <string name="account_activity_text">Cuenta Nauta</string>
     <string name="configure_account_text">Configure su cuenta de Nauta</string>
     <string name="start_session_text">Iniciar sesión de Nauta</string>
-    <string name="close_session_text">Cerrar su sesión de Nauta</string>
+    <string name="close_session_text">Cerrar sesión de Nauta</string>
     <string name="available_time_text">Tiempo disponible:</string>
     <string name="used_time_text">Tiempo utilizado:</string>
 
     <string name="connecting_text">Conectando...</string>
     <string name="closing_text">Cerrando...</string>
 
+    <string name="close_session_warning">Para salir debe cerrar la sesion</string>
     <string name="login_error">No se pudo iniciar la sesión. Por favor, revise su conexión</string>
     <string name="already_connected_error">Ya existe un usuario conectado previamente. No necesita iniciar la sesión para acceder a internet</string>
     <string name="no_money_error">Su cuenta se ha quedado sin saldo</string>

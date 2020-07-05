@@ -156,13 +156,15 @@ class SessionService : Service() {
 
     private fun createNotification(text: String?): Notification {
         val intent = Intent(this, SessionActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.app_name))
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setContentText("${getString(R.string.used_time_text)} $text" ?: "")
                 .build()
+        notification.flags = Notification.FLAG_FOREGROUND_SERVICE or Notification.FLAG_ONLY_ALERT_ONCE
+        return notification
     }
 
     private fun sendNotification(text: String) {
