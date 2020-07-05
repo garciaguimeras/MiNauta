@@ -1,14 +1,12 @@
 package dev.blackcat.minauta.ui.session
 
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
-import com.google.android.material.snackbar.Snackbar
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.ui.MyAppCompatActivity
@@ -62,7 +60,13 @@ class SessionActivity : MyAppCompatActivity() {
                     Connection.State.INCORRECT_PASSWORD -> resId = R.string.incorrect_password_error
                     Connection.State.UNKNOWN_USERNAME -> resId = R.string.unknown_username_error
                 }
-                showOneButtonDialogWithText(resId)
+                val dialog = createDialogWithText(resId)
+                dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.button_accept)) { dialogInterface, i ->
+                    dialogInterface.dismiss()
+                    viewModel.sendCloseSession()
+                    finish()
+                }
+                dialog.show()
             }
         })
         viewModel.availableTime.observe(this, Observer { result ->
@@ -95,8 +99,7 @@ class SessionActivity : MyAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Snackbar.make(parentLayout, R.string.close_session_warning, Snackbar.LENGTH_LONG)
-                .setTextColor(getColor(R.color.colorPrimary))
+        Toast.makeText(this, R.string.close_session_warning, Toast.LENGTH_LONG)
                 .show()
     }
 

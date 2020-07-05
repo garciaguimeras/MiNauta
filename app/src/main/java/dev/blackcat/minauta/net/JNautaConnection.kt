@@ -7,6 +7,7 @@ import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class JNautaConnection : Connection {
 
@@ -32,6 +33,7 @@ class JNautaConnection : Connection {
             else {
                 val session = Session()
                 session.loginParams = loginResult.paramString
+                session.startTime = Calendar.getInstance().timeInMillis
                 result.session = session
                 result.state = Connection.State.OK
             }

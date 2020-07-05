@@ -1,26 +1,27 @@
 package dev.blackcat.minauta.ui
 
-import android.view.View
-
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import dev.blackcat.minauta.R
 
 open class MyAppCompatActivity : AppCompatActivity() {
 
-    fun showDialogWithText(resId: Int): AlertDialog {
+    fun createDialogWithText(resId: Int): AlertDialog {
         val dialog = AlertDialog.Builder(this).create()
         dialog.setMessage(this.getString(resId))
-        dialog.show()
+        return dialog
+    }
 
+    fun showDialogWithText(resId: Int): AlertDialog {
+        val dialog = createDialogWithText(resId)
+        dialog.show()
         return dialog
     }
 
     fun showOneButtonDialogWithText(resId: Int): AlertDialog {
         val acceptText = getString(R.string.button_accept)
 
-        val dialog = AlertDialog.Builder(this).create()
-        dialog.setMessage(this.getString(resId))
+        val dialog = createDialogWithText(resId)
         dialog.setButton(AlertDialog.BUTTON_POSITIVE, acceptText) { dialogInterface, i ->
             dialogInterface.dismiss()
         }

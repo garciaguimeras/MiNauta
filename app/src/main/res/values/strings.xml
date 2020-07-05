@@ -38,4 +38,5 @@
     <string name="seconds_text">segundos</string>
     <string name="minutes_text">minutos</string>
     <string name="hours_text">horas</string>
+    <string name="session_started_as_text">Sesión iniciada como:</string>
 </resources>

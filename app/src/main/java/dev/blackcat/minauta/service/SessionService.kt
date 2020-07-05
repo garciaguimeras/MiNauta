@@ -93,6 +93,7 @@ class SessionService : Service() {
     }
 
     fun stop() {
+        if (!running) stopForeground(true)
         running = false
     }
 
@@ -129,7 +130,7 @@ class SessionService : Service() {
                     Log.d(SessionService::class.java.name, "====> time ${timeStr}")
                     sendAvailableTimeResult(availableTimeResult)
                     sendUsedTime(timeStr)
-                    sendNotification(availableTimeResult.availableTime ?: "", timeStr, account.sessionLimit)
+                    sendNotification(availableTimeResult.availableTime ?: "", timeStr, account)
                     delay(1000)
                 }
 
@@ -143,7 +144,7 @@ class SessionService : Service() {
         }
     }
 
-    private fun createNotification(lines: List<String> = listOf()): Notification {
+    private fun createNotification(text: String = "", lines: List<String> = listOf()): Notification {
         val style = NotificationCompat.InboxStyle()
         lines.forEach { line -> style.addLine(line) }
 
@@ -152,6 +153,7 @@ class SessionService : Service() {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.app_name))
                 .setSmallIcon(R.drawable.ic_stat_minauta)
+                .setContentText(text)
                 .setContentIntent(pendingIntent)
                 .setStyle(style)
                 .build()
@@ -160,7 +162,10 @@ class SessionService : Service() {
         return notification
     }
 
-    private fun sendNotification(availableTime: String, usedTime: String, sessionLimit: SessionLimit) {
+    private fun sendNotification(availableTime: String, usedTime: String, account: Account) {
+        val sessionLimit = account.sessionLimit
+
+        val text = "${getString(R.string.session_started_as_text)} ${account.username}"
         val lines = mutableListOf(
                 "${getString(R.string.available_time_text)} $availableTime",
                 "${getString(R.string.used_time_text)} $usedTime"
@@ -175,7 +180,7 @@ class SessionService : Service() {
             lines.add(line)
         }
 
-        val notification = createNotification(lines)
+        val notification = createNotification(text, lines)
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
