@@ -9,12 +9,14 @@ import dev.blackcat.minauta.BundledString
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
+import dev.blackcat.minauta.data.SessionLimit
 import dev.blackcat.minauta.data.SessionTimeUnit
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.net.ConnectionManager
 import dev.blackcat.minauta.ui.session.SessionActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -25,17 +27,7 @@ class SessionServiceHandler(val service: SessionService) : Handler() {
                 service.outgoingMessenger = msg.replyTo
                 service.sendRunning()
             }
-            /*
-            SessionService.REC_REMOVE_MESSENGER_MESSAGE -> {
-                service.outgoingMessengers.remove(msg.replyTo)
-            }
-            SessionService.REC_START_MESSAGE -> {
-                service.account = BundledString.toObject(msg.data, Account::class.java)
-                service.start()
-            }
-             */
             SessionService.REC_STOP_MESSAGE -> { service.stop() }
-            // SessionService.REC_STATUS_MESSAGE -> { service.sendRunning() }
             else -> { super.handleMessage(msg) }
         }
     }
@@ -50,10 +42,7 @@ class SessionService : Service() {
         const val ACCOUNT = "dev.blackcat.minauta.service.Account"
 
         const val REC_ADD_MESSENGER_MESSAGE = 1000
-        // const val REC_REMOVE_MESSENGER_MESSAGE = 1001
-        // const val REC_START_MESSAGE = 1002
         const val REC_STOP_MESSAGE = 1003
-        // const val REC_STATUS_MESSAGE = 1004
 
         const val SND_LOGIN_RESULT_MESSAGE = 2000
         const val SND_AVAILABLE_TIME_MESSAGE = 2001
@@ -77,7 +66,7 @@ class SessionService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i("====>", "onStartCommand $intent")
+        Log.d(SessionService::class.java.name, "====> onStartCommand $intent")
 
         intent?.let {
             account = intent.getSerializableExtra(ACCOUNT) as Account
@@ -96,10 +85,10 @@ class SessionService : Service() {
     }
 
     private fun startAsForegroundService() {
-        Log.i("====>", "startAsForegroundService")
+        Log.d(SessionService::class.java.name, "====> startAsForegroundService")
 
         createNotificationChannel()
-        val notification = createNotification(null)
+        val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
     }
 
@@ -113,7 +102,7 @@ class SessionService : Service() {
         account?.let { account ->
 
             CoroutineScope(Dispatchers.Default).launch {
-                Log.i("====>", "started")
+                Log.d(SessionService::class.java.name, "====> started")
                 running = true
                 val connectionManager = ConnectionManager(account)
                 val loginResult = connectionManager.login()
@@ -124,7 +113,7 @@ class SessionService : Service() {
                     return@launch
                 }
 
-                Log.i("====>", "time and loop")
+                Log.d(SessionService::class.java.name, "====> time and loop")
                 val availableTimeResult = connectionManager.getAvailableTime(session!!)
                 sendAvailableTimeResult(availableTimeResult)
                 val limitInSeconds = getSessionLimit()
@@ -137,38 +126,56 @@ class SessionService : Service() {
                     }
 
                     val timeStr = millisToString(diff)
-                    Log.i("====>", "time ${timeStr}")
+                    Log.d(SessionService::class.java.name, "====> time ${timeStr}")
                     sendAvailableTimeResult(availableTimeResult)
                     sendUsedTime(timeStr)
-                    sendNotification(timeStr)
-                    try { Thread.sleep(1000) } catch (e: Exception) {}
+                    sendNotification(availableTimeResult.availableTime ?: "", timeStr, account.sessionLimit)
+                    delay(1000)
                 }
 
-                Log.i("====>", "logout")
+                Log.d(SessionService::class.java.name, "====> logout")
                 stopForeground(true)
                 val logoutResult = connectionManager.logout(session!!)
                 sendLogoutResult(logoutResult)
-                Log.i("====>", "ended")
+                Log.d(SessionService::class.java.name, "====> ended")
             }
 
         }
     }
 
-    private fun createNotification(text: String?): Notification {
+    private fun createNotification(lines: List<String> = listOf()): Notification {
+        val style = NotificationCompat.InboxStyle()
+        lines.forEach { line -> style.addLine(line) }
+
         val intent = Intent(this, SessionActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.app_name))
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_stat_minauta)
                 .setContentIntent(pendingIntent)
-                .setContentText("${getString(R.string.used_time_text)} $text" ?: "")
+                .setStyle(style)
                 .build()
+
         notification.flags = Notification.FLAG_FOREGROUND_SERVICE or Notification.FLAG_ONLY_ALERT_ONCE
         return notification
     }
 
-    private fun sendNotification(text: String) {
-        val notification = createNotification(text)
+    private fun sendNotification(availableTime: String, usedTime: String, sessionLimit: SessionLimit) {
+        val lines = mutableListOf(
+                "${getString(R.string.available_time_text)} $availableTime",
+                "${getString(R.string.used_time_text)} $usedTime"
+        )
+        if (sessionLimit.enabled) {
+            val timeUnitText = when (sessionLimit.timeUnit) {
+                SessionTimeUnit.SECONDS -> { getString(R.string.seconds_text) }
+                SessionTimeUnit.MINUTES -> { getString(R.string.minutes_text) }
+                SessionTimeUnit.HOURS -> { getString(R.string.hours_text) }
+            }
+            val line = "${getString(R.string.session_limit_text)} ${sessionLimit.time} ${timeUnitText}"
+            lines.add(line)
+        }
+
+        val notification = createNotification(lines)
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
