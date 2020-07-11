@@ -7,7 +7,7 @@ import dev.blackcat.minauta.data.*
 
 class PreferencesStore(context: Context) {
 
-    private val prefs = context.getSharedPreferences(MiNautaApp::class.java.name, Context.MODE_PRIVATE)
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     val account: Account
         get() {

@@ -29,9 +29,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.account.AccountActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
             android:name=".ui.session.SessionActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTask">
@@ -41,7 +38,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.portal.PortalActivity"></activity>
+            android:name=".ui.portal.PortalActivity">
+        </activity>
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <service
             android:name=".service.SessionService"
             android:stopWithTask="false"/>
