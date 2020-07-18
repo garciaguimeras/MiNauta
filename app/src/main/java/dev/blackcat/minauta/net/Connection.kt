@@ -22,6 +22,7 @@ interface Connection {
     }
 
     class LogoutResult : Serializable {
+        var session: Session? = null
         var state: State? = null
     }
 

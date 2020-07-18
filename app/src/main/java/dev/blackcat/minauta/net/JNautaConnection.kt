@@ -1,6 +1,5 @@
 package dev.blackcat.minauta.net
 
-import android.util.Log
 import dev.blackcat.jnauta.net.Authentication
 import dev.blackcat.jnauta.net.ConnectionBuilder
 import dev.blackcat.minauta.data.Account
@@ -46,6 +45,7 @@ class JNautaConnection : Connection {
             val logoutResult = authentication.logout(session.loginParams)
 
             val result = Connection.LogoutResult()
+            result.session = session
             result.state = if (logoutResult) Connection.State.OK else Connection.State.ERROR
             return@withContext result
         }

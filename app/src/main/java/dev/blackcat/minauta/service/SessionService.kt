@@ -6,13 +6,14 @@ import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import dev.blackcat.minauta.BundledString
+import dev.blackcat.minauta.PreferencesStore
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
-import dev.blackcat.minauta.data.SessionLimit
 import dev.blackcat.minauta.data.SessionTimeUnit
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.net.ConnectionManager
+import dev.blackcat.minauta.ui.main.MainActivity
 import dev.blackcat.minauta.ui.session.SessionActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,8 +40,6 @@ class SessionService : Service() {
         const val NOTIFICATION_ID = 2000
         const val CHANNEL_ID = "dev.blackcat.minauta.service.ChannelId"
 
-        const val ACCOUNT = "dev.blackcat.minauta.service.Account"
-
         const val REC_ADD_MESSENGER_MESSAGE = 1000
         const val REC_STOP_MESSAGE = 1003
 
@@ -53,7 +52,6 @@ class SessionService : Service() {
 
 
     var running = false
-    var account: Account? = null
     var session: Session? = null
 
     var notificationManager: NotificationManager? = null
@@ -68,12 +66,25 @@ class SessionService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(SessionService::class.java.name, "====> onStartCommand $intent")
 
-        intent?.let {
-            account = intent.getSerializableExtra(ACCOUNT) as Account
-            startAsForegroundService()
-            start()
+        startAsForegroundService()
+        if (intent != null) {
+            createSession()
         }
-        return START_NOT_STICKY
+        else {
+            val preferencesStore = PreferencesStore(this)
+            session = preferencesStore.session
+        }
+        start()
+
+        return START_STICKY
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        session?.let { session ->
+            val preferencesStore = PreferencesStore(this)
+            preferencesStore.setSession(session.loginParams, session.startTime)
+        }
     }
 
     private fun createNotificationChannel() {
@@ -86,7 +97,6 @@ class SessionService : Service() {
 
     private fun startAsForegroundService() {
         Log.d(SessionService::class.java.name, "====> startAsForegroundService")
-
         createNotificationChannel()
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -95,29 +105,37 @@ class SessionService : Service() {
     fun stop() {
         if (!running) stopForeground(true)
         running = false
+        session = null
+        val preferencesStore = PreferencesStore(this)
+        preferencesStore.setSession("", 0)
+    }
+
+    fun createSession() {
+        val preferencesStore = PreferencesStore(this)
+        val account = preferencesStore.account
+        val connectionManager = ConnectionManager(account)
+
+        Log.d(SessionService::class.java.name, "====> login")
+        val loginResult = connectionManager.login()
+        sendLoginResult(loginResult)
+        session = if (loginResult.state == Connection.State.OK) loginResult.session else null
     }
 
     fun start() {
-        if (running) return
+        val preferencesStore = PreferencesStore(this)
+        val account = preferencesStore.account
+        val connectionManager = ConnectionManager(account)
 
-        account?.let { account ->
+        session?.let { session ->
 
             CoroutineScope(Dispatchers.Default).launch {
-                Log.d(SessionService::class.java.name, "====> started")
+                Log.d(SessionService::class.java.name, "====> start")
                 running = true
-                val connectionManager = ConnectionManager(account)
-                val loginResult = connectionManager.login()
-                sendLoginResult(loginResult)
-                session = loginResult.session
-                if (loginResult.state != Connection.State.OK) {
-                    running = false
-                    return@launch
-                }
 
                 Log.d(SessionService::class.java.name, "====> time and loop")
                 val availableTimeResult = connectionManager.getAvailableTime(session!!)
                 sendAvailableTimeResult(availableTimeResult)
-                val limitInSeconds = getSessionLimit()
+                val limitInSeconds = getSessionLimit(account)
                 while (running) {
                     val time = Calendar.getInstance().timeInMillis
                     val diff = (time - session!!.startTime) / 1000
@@ -130,13 +148,15 @@ class SessionService : Service() {
                     Log.d(SessionService::class.java.name, "====> time ${timeStr}")
                     sendAvailableTimeResult(availableTimeResult)
                     sendUsedTime(timeStr)
-                    sendNotification(availableTimeResult.availableTime ?: "", timeStr, account)
+                    sendTimeNotification(availableTimeResult.availableTime ?: "", timeStr, account)
+
                     delay(1000)
                 }
 
                 Log.d(SessionService::class.java.name, "====> logout")
                 stopForeground(true)
                 val logoutResult = connectionManager.logout(session!!)
+                sendLogoutNotification(logoutResult)
                 sendLogoutResult(logoutResult)
                 Log.d(SessionService::class.java.name, "====> ended")
             }
@@ -150,19 +170,21 @@ class SessionService : Service() {
 
         val intent = Intent(this, SessionActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(getString(R.string.app_name))
-                .setSmallIcon(R.drawable.ic_stat_minauta)
-                .setContentText(text)
-                .setContentIntent(pendingIntent)
-                .setStyle(style)
-                .build()
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+        builder.setContentTitle(getString(R.string.app_name))
+        builder.setSmallIcon(R.drawable.ic_stat_minauta)
+        builder.setContentText(text)
+        builder.setContentIntent(pendingIntent)
+        if (lines.size > 0) {
+            builder.setStyle(style)
+        }
+        val notification = builder.build()
 
         notification.flags = Notification.FLAG_FOREGROUND_SERVICE or Notification.FLAG_ONLY_ALERT_ONCE
         return notification
     }
 
-    private fun sendNotification(availableTime: String, usedTime: String, account: Account) {
+    private fun sendTimeNotification(availableTime: String, usedTime: String, account: Account) {
         val sessionLimit = account.sessionLimit
 
         val text = "${getString(R.string.session_started_as_text)} ${account.username}"
@@ -181,6 +203,21 @@ class SessionService : Service() {
         }
 
         val notification = createNotification(text, lines)
+        notificationManager?.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun sendLogoutNotification(result: Connection.LogoutResult) {
+        val textResId = if (result.state == Connection.State.OK) R.string.logout_ok else R.string.logout_error
+        val text = getString(textResId)
+
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+        builder.setContentTitle(getString(R.string.app_name))
+        builder.setSmallIcon(R.drawable.ic_stat_minauta)
+        builder.setContentText(text)
+        builder.setContentIntent(pendingIntent)
+        val notification = builder.build()
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
@@ -229,7 +266,7 @@ class SessionService : Service() {
         }
     }
 
-    private fun getSessionLimit(): Int {
+    private fun getSessionLimit(account: Account): Int {
         val sessionLimit = account!!.sessionLimit
         return if (sessionLimit.enabled) {
             when (sessionLimit.timeUnit) {

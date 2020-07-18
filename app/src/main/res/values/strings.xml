@@ -18,6 +18,7 @@
     <string name="is_google_error">Su conexión a internet se encuentra abierta pero no tenemos forma de cerrarla. Cierre la WiFi o apague el router para desconectarse</string>
     <string name="unknown_username_error">No se reconoce el nombre de usuario</string>
     <string name="incorrect_password_error">La contraseña es incorrecta</string>
+    <string name="logout_ok">La sesión se cerró correctamente</string>
     <string name="logout_error">No se pudo cerrar la sesión. Cierre la WiFi o apague el router para desconectarse</string>
 
     <string name="hint_username">Usuario</string>
@@ -39,4 +40,5 @@
     <string name="minutes_text">minutos</string>
     <string name="hours_text">horas</string>
     <string name="session_started_as_text">Sesión iniciada como:</string>
+    <string name="button_retry">Reintentar</string>
 </resources>

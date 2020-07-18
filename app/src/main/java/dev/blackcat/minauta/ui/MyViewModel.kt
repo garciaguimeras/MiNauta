@@ -17,6 +17,8 @@ import dev.blackcat.minauta.PreferencesStore
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.service.SessionService
 
+
+
 open class MyViewModelHandler(open val viewModel: MyViewModel) : Handler() {
     override fun handleMessage(msg: Message) {
         when (msg.what) {
@@ -40,16 +42,7 @@ open class MyViewModel(application: Application) : AndroidViewModel(application)
 
     private lateinit var incomingMessenger: Messenger
     protected var outgoingMessenger: Messenger? = null
-    protected val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            outgoingMessenger = Messenger(binder)
-            sendAddMessenger()
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            outgoingMessenger = null
-        }
-    }
+    private lateinit var serviceConnection: ServiceConnection
 
     open fun getMessengerHandler(): Handler? {
         return null
@@ -60,6 +53,7 @@ open class MyViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun bindService(activity: Activity) {
+        serviceConnection = createServiceConnection()
         val intent = Intent(activity, SessionService::class.java)
         activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
@@ -76,6 +70,19 @@ open class MyViewModel(application: Application) : AndroidViewModel(application)
             msg.what = SessionService.REC_ADD_MESSENGER_MESSAGE
             msg.replyTo = incomingMessenger
             messenger.send(msg)
+        }
+    }
+
+    private fun createServiceConnection() : ServiceConnection {
+        return object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                outgoingMessenger = Messenger(binder)
+                sendAddMessenger()
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                outgoingMessenger = null
+            }
         }
     }
 

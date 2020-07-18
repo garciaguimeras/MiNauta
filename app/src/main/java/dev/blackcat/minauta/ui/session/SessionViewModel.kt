@@ -8,7 +8,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dev.blackcat.minauta.BundledString
+import dev.blackcat.minauta.data.Session
 import dev.blackcat.minauta.net.Connection
+import dev.blackcat.minauta.net.ConnectionManager
 import dev.blackcat.minauta.service.SessionService
 import dev.blackcat.minauta.ui.MyViewModel
 import dev.blackcat.minauta.ui.MyViewModelHandler
@@ -27,7 +29,7 @@ class SessionViewModelHandler(override val viewModel: SessionViewModel) : MyView
         when (msg.what) {
             SessionService.SND_LOGIN_RESULT_MESSAGE -> {
                 val result = BundledString.toObject(msg.data, Connection.LoginResult::class.java)
-                viewModel.loginResult.postValue(result.state)
+                viewModel.loginResult.postValue(result)
             }
             SessionService.SND_AVAILABLE_TIME_MESSAGE -> {
                 val result = BundledString.toObject(msg.data, Connection.AvailableTimeResult::class.java)
@@ -39,7 +41,7 @@ class SessionViewModelHandler(override val viewModel: SessionViewModel) : MyView
             }
             SessionService.SND_LOGOUT_RESULT_MESSAGE -> {
                 val result = BundledString.toObject(msg.data, Connection.LogoutResult::class.java)
-                viewModel.logoutResult.postValue(result.state)
+                viewModel.logoutResult.postValue(result)
             }
             else -> { super.handleMessage(msg) }
         }
@@ -49,10 +51,10 @@ class SessionViewModelHandler(override val viewModel: SessionViewModel) : MyView
 class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.application) {
 
 
-    val loginResult = MutableLiveData<Connection.State>()
+    val loginResult = MutableLiveData<Connection.LoginResult>()
     val availableTime = MutableLiveData<Connection.AvailableTimeResult>()
     val usedTime = MutableLiveData<String>()
-    val logoutResult = MutableLiveData<Connection.State>()
+    val logoutResult = MutableLiveData<Connection.LogoutResult>()
 
     override fun getMessengerHandler(): Handler? {
         return SessionViewModelHandler(this)
@@ -60,7 +62,6 @@ class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.app
 
     fun startService(activity: SessionActivity) {
         val intent = Intent(activity, SessionService::class.java)
-        intent.putExtra(SessionService.ACCOUNT, preferencesStore.account)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             activity.startForegroundService(intent)
         }
@@ -75,6 +76,12 @@ class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.app
             msg.what = SessionService.REC_STOP_MESSAGE
             messenger.send(msg)
         }
+    }
+
+    fun retryCloseSession(session: Session) {
+        val connectionManager = ConnectionManager(preferencesStore.account)
+        val result = connectionManager.logout(session)
+        logoutResult.postValue(result)
     }
 
 }

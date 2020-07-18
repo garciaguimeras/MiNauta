@@ -51,23 +51,8 @@ class SessionActivity : MyAppCompatActivity() {
             }
         })
 
-        viewModel.loginResult.observe(this, Observer { state ->
-            if (state != Connection.State.OK) {
-                var resId = R.string.login_error
-                when (state) {
-                    Connection.State.ALREADY_CONNECTED -> resId = R.string.already_connected_error
-                    Connection.State.NO_MONEY -> resId = R.string.no_money_error
-                    Connection.State.INCORRECT_PASSWORD -> resId = R.string.incorrect_password_error
-                    Connection.State.UNKNOWN_USERNAME -> resId = R.string.unknown_username_error
-                }
-                val dialog = createDialogWithText(resId)
-                dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.button_accept)) { dialogInterface, i ->
-                    dialogInterface.dismiss()
-                    viewModel.sendCloseSession()
-                    finish()
-                }
-                dialog.show()
-            }
+        viewModel.loginResult.observe(this, Observer { result ->
+            onLoginResult(result)
         })
         viewModel.availableTime.observe(this, Observer { result ->
             val availableTimeText = getString(R.string.available_time_text)
@@ -78,14 +63,9 @@ class SessionActivity : MyAppCompatActivity() {
             val usedTimeText = getString(R.string.used_time_text)
             usedTimeTextView.text = "${usedTimeText} ${text}"
         })
-        viewModel.logoutResult.observe(this, Observer { state ->
-            closingDialog?.dismiss()
-            if (state != Connection.State.OK) {
-                this@SessionActivity.showOneButtonDialogWithText(R.string.logout_error)
-            }
-            this@SessionActivity.finish()
+        viewModel.logoutResult.observe(this, Observer { result ->
+            onLogoutResult(result)
         })
-
     }
 
     override fun onResume() {
@@ -101,6 +81,46 @@ class SessionActivity : MyAppCompatActivity() {
     override fun onBackPressed() {
         Toast.makeText(this, R.string.close_session_warning, Toast.LENGTH_LONG)
                 .show()
+    }
+
+    private fun onLoginResult(result: Connection.LoginResult) {
+        val state = result.state
+        if (state != Connection.State.OK) {
+            var resId = R.string.login_error
+            when (state) {
+                Connection.State.ALREADY_CONNECTED -> resId = R.string.already_connected_error
+                Connection.State.NO_MONEY -> resId = R.string.no_money_error
+                Connection.State.INCORRECT_PASSWORD -> resId = R.string.incorrect_password_error
+                Connection.State.UNKNOWN_USERNAME -> resId = R.string.unknown_username_error
+            }
+            val dialog = createDialogWithText(resId)
+            dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.button_accept)) { dialogInterface, i ->
+                dialogInterface.dismiss()
+                viewModel.sendCloseSession()
+                finish()
+            }
+            dialog.show()
+        }
+    }
+
+    private fun onLogoutResult(result: Connection.LogoutResult) {
+        closingDialog?.dismiss()
+
+        val textResId = if (result.state == Connection.State.OK) R.string.logout_ok else R.string.logout_error
+        val dialog = createDialogWithText(textResId)
+
+        if (result.state != Connection.State.OK) {
+            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.button_retry)) { dialogInterface, i ->
+                dialogInterface.dismiss()
+                viewModel.retryCloseSession(result.session!!)
+            }
+        }
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.button_accept)) { dialogInterface, i ->
+            dialogInterface.dismiss()
+            finish()
+        }
+
+        dialog.show()
     }
 
 }
