@@ -52,7 +52,6 @@ class SessionService : Service() {
 
 
     var running = false
-    var session: Session? = null
 
     var notificationManager: NotificationManager? = null
     lateinit var incomingMessenger: Messenger
@@ -66,25 +65,16 @@ class SessionService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(SessionService::class.java.name, "====> onStartCommand $intent")
 
-        startAsForegroundService()
         if (intent != null) {
             createSession()
         }
-        else {
-            val preferencesStore = PreferencesStore(this)
-            session = preferencesStore.session
+        val preferencesStore = PreferencesStore(this)
+        if (preferencesStore.session != null) {
+            startAsForegroundService()
+            start()
         }
-        start()
 
         return START_STICKY
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        session?.let { session ->
-            val preferencesStore = PreferencesStore(this)
-            preferencesStore.setSession(session.loginParams, session.startTime)
-        }
     }
 
     private fun createNotificationChannel() {
@@ -105,9 +95,6 @@ class SessionService : Service() {
     fun stop() {
         if (!running) stopForeground(true)
         running = false
-        session = null
-        val preferencesStore = PreferencesStore(this)
-        preferencesStore.setSession("", 0)
     }
 
     fun createSession() {
@@ -118,7 +105,12 @@ class SessionService : Service() {
         Log.d(SessionService::class.java.name, "====> login")
         val loginResult = connectionManager.login()
         sendLoginResult(loginResult)
-        session = if (loginResult.state == Connection.State.OK) loginResult.session else null
+        if (loginResult.state == Connection.State.OK) {
+            preferencesStore.setSession(loginResult.session!!.loginParams, loginResult.session!!.startTime)
+        }
+        else {
+            preferencesStore.removeSession()
+        }
     }
 
     fun start() {
@@ -126,7 +118,7 @@ class SessionService : Service() {
         val account = preferencesStore.account
         val connectionManager = ConnectionManager(account)
 
-        session?.let { session ->
+        preferencesStore.session?.let { session ->
 
             CoroutineScope(Dispatchers.Default).launch {
                 Log.d(SessionService::class.java.name, "====> start")
@@ -156,6 +148,7 @@ class SessionService : Service() {
                 Log.d(SessionService::class.java.name, "====> logout")
                 stopForeground(true)
                 val logoutResult = connectionManager.logout(session!!)
+                preferencesStore.removeSession()
                 sendLogoutNotification(logoutResult)
                 sendLogoutResult(logoutResult)
                 Log.d(SessionService::class.java.name, "====> ended")

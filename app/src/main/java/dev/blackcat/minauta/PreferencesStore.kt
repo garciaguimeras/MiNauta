@@ -47,6 +47,13 @@ class PreferencesStore(context: Context) {
         editor.apply()
     }
 
+    fun removeSession() {
+        val editor = prefs.edit()
+        editor.putString(LOGIN_PARAMS, "")
+        editor.putLong(START_TIME, 0)
+        editor.apply()
+    }
+
     fun setSession(loginParams: String, startTime: Long) {
         val editor = prefs.edit()
         editor.putString(LOGIN_PARAMS, loginParams)
