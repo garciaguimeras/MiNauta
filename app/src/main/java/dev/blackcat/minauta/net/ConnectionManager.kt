@@ -13,43 +13,28 @@ class ConnectionManager(val account: Account) {
     val connection = ConnectionFactory.createSessionProducer(JNautaConnection::class.java)!!
     //val connection = ConnectionFactory.createSessionProducer(FakeConnection::class.java)!!
 
-    fun login(): Connection.LoginResult {
-        val scope = CoroutineScope(Dispatchers.IO).async {
-            val result = connection.login(account)
-            return@async result
-        }
+    fun login(): Connection.LoginResult =
+            runBlocking {
+                val result = CoroutineScope(Dispatchers.IO).async {
+                    connection.login(account)
+                }
+                return@runBlocking result.await()
+            }
 
-        var result: Connection.LoginResult? = null
-        runBlocking {
-            result = scope.await()
-        }
-        return result!!
-    }
+    fun getAvailableTime(session: Session): Connection.AvailableTimeResult =
+            runBlocking {
+                val result = CoroutineScope(Dispatchers.IO).async {
+                    connection.getAvailableTime(account, session)
+                }
+                return@runBlocking result.await()
+            }
 
-    fun getAvailableTime(session: Session): Connection.AvailableTimeResult {
-        val scope = CoroutineScope(Dispatchers.IO).async {
-            val result = connection.getAvailableTime(account, session)
-            return@async result
-        }
-
-        var result: Connection.AvailableTimeResult? = null
-        runBlocking {
-            result = scope.await()
-        }
-        return result!!
-    }
-
-    fun logout(session: Session): Connection.LogoutResult {
-        val scope = CoroutineScope(Dispatchers.IO).async {
-            val result = connection.logout(account, session)
-            return@async result
-        }
-
-        var result: Connection.LogoutResult? = null
-        runBlocking {
-            result = scope.await()
-        }
-        return result!!
-    }
+    fun logout(session: Session): Connection.LogoutResult =
+            runBlocking {
+                val result = CoroutineScope(Dispatchers.IO).async {
+                    connection.logout(account, session)
+                }
+                return@runBlocking result.await()
+            }
 
 }
