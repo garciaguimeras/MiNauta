@@ -2,19 +2,13 @@ package dev.blackcat.minauta.ui.main
 
 import android.app.Application
 import android.content.Intent
-import android.os.Handler
 import dev.blackcat.minauta.data.SessionLimit
 import dev.blackcat.minauta.ui.MyViewModel
-import dev.blackcat.minauta.ui.MyViewModelHandler
 import dev.blackcat.minauta.ui.portal.PortalActivity
 import dev.blackcat.minauta.ui.session.SessionActivity
 import dev.blackcat.minauta.ui.settings.SettingsActivity
 
 class MainViewModel(application: Application) : MyViewModel(application) {
-
-    override fun getMessengerHandler(): Handler? {
-        return MyViewModelHandler(this)
-    }
 
     fun startSessionActivity(activity: MainActivity, shouldStartService: Boolean = false) {
         val intent = Intent(activity, SessionActivity::class.java)

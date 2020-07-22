@@ -32,10 +32,6 @@
             android:name=".ui.session.SessionActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="dev.blackcat.minauta.SESSION_EXPIRED_ACTION" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.portal.PortalActivity">
@@ -44,6 +40,8 @@
             android:name=".ui.settings.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <receiver android:name=".ui.session.AlarmTimeoutReceiver">
+        </receiver>
         <service
             android:name=".service.SessionService"
             android:process=":nauta_session_service"

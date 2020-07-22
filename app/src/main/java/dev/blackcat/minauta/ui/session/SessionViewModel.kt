@@ -1,87 +1,151 @@
 package dev.blackcat.minauta.ui.session
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.os.Handler
-import android.os.Message
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import dev.blackcat.minauta.BundledString
-import dev.blackcat.minauta.data.Session
+import dev.blackcat.minauta.data.SessionLimit
+import dev.blackcat.minauta.data.SessionTimeUnit
 import dev.blackcat.minauta.net.Connection
 import dev.blackcat.minauta.net.ConnectionManager
-import dev.blackcat.minauta.service.SessionService
 import dev.blackcat.minauta.ui.MyViewModel
-import dev.blackcat.minauta.ui.MyViewModelHandler
+import kotlinx.coroutines.*
+import java.util.*
 
 
 class SessionViewModelFactory(val activity: SessionActivity) : ViewModelProvider.NewInstanceFactory() {
-
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return SessionViewModel(activity) as T
-    }
-
-}
-
-class SessionViewModelHandler(override val viewModel: SessionViewModel) : MyViewModelHandler(viewModel) {
-    override fun handleMessage(msg: Message) {
-        when (msg.what) {
-            SessionService.SND_LOGIN_RESULT_MESSAGE -> {
-                val result = BundledString.toObject(msg.data, Connection.LoginResult::class.java)
-                viewModel.loginResult.postValue(result)
-            }
-            SessionService.SND_AVAILABLE_TIME_MESSAGE -> {
-                val result = BundledString.toObject(msg.data, Connection.AvailableTimeResult::class.java)
-                viewModel.availableTime.postValue(result)
-            }
-            SessionService.SND_USED_TIME_MESSAGE -> {
-                val time = BundledString.toObject(msg.data, String::class.java)
-                viewModel.usedTime.postValue(time)
-            }
-            SessionService.SND_LOGOUT_RESULT_MESSAGE -> {
-                val result = BundledString.toObject(msg.data, Connection.LogoutResult::class.java)
-                viewModel.logoutResult.postValue(result)
-            }
-            else -> { super.handleMessage(msg) }
-        }
     }
 }
 
 class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.application) {
-
 
     val loginResult = MutableLiveData<Connection.LoginResult>()
     val availableTime = MutableLiveData<Connection.AvailableTimeResult>()
     val usedTime = MutableLiveData<String>()
     val logoutResult = MutableLiveData<Connection.LogoutResult>()
 
-    override fun getMessengerHandler(): Handler? {
-        return SessionViewModelHandler(this)
-    }
+    val connectionManager = ConnectionManager(preferencesStore.account)
+    var timeLoopJob: Job? = null
+    var alarmManager: AlarmManager? = null
+    var alarmPendingIntent: PendingIntent? = null
 
-    fun startService(activity: SessionActivity) {
-        val intent = Intent(activity, SessionService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activity.startForegroundService(intent)
+    // Public methods
+
+    fun startSession() {
+        val result = login()
+        if (!result) return
+        val account = preferencesStore.account
+        if (account.sessionLimit.enabled) {
+            setAlarm(account.sessionLimit)
         }
-        else {
-            activity.startService(intent)
+        getAvailableTime()
+        startTimeLoop()
+    }
+
+    fun continueSession() {
+        if (timeLoopJob == null) {
+            getAvailableTime()
+            startTimeLoop()
         }
     }
 
-    fun sendCloseSession() {
-        outgoingMessenger?.let { messenger ->
-            val msg = Message.obtain()
-            msg.what = SessionService.REC_STOP_MESSAGE
-            messenger.send(msg)
+    fun closeSession() {
+        logout()
+    }
+
+    fun forceSessionClosing() {
+        cancelJob()
+    }
+
+    // Session
+
+    private fun login(): Boolean {
+        val result = connectionManager.login()
+        if (result.state!! == Connection.State.OK) {
+            val session = result.session!!
+            preferencesStore.setSession(session.loginParams, session.startTime)
+        }
+        loginResult.postValue(result)
+        return result.state!! == Connection.State.OK
+    }
+
+    private fun getAvailableTime() {
+        val result = connectionManager.getAvailableTime(preferencesStore.session!!)
+        availableTime.postValue(result)
+    }
+
+    private fun startTimeLoop() {
+        timeLoopJob = CoroutineScope(Dispatchers.Default).launch {
+            val session = preferencesStore.session
+            while (isActive) {
+                val time = Calendar.getInstance().timeInMillis
+                val diff = (time - session!!.startTime) / 1000
+                val timeStr = millisToString(diff)
+                usedTime.postValue(timeStr)
+                delay(1000)
+            }
         }
     }
 
-    fun retryCloseSession(session: Session) {
-        val connectionManager = ConnectionManager(preferencesStore.account)
-        val result = connectionManager.logout(session)
-        logoutResult.postValue(result)
+    private fun logout() {
+        preferencesStore.session?.let { session ->
+            val connectionManager = ConnectionManager(preferencesStore.account)
+            val result = connectionManager.logout(session)
+            if (result.state!! == Connection.State.OK) {
+                cancelJob()
+            }
+            logoutResult.postValue(result)
+        }
     }
 
+    private fun cancelJob() {
+        timeLoopJob?.cancel()
+        cancelAlarm()
+        preferencesStore.removeSession()
+    }
+
+    private fun millisToString(millis: Long): String {
+        var minutes = millis / 60
+        val seconds = millis % 60
+        val hours = minutes / 60
+        minutes %= 60
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    // Alarm
+
+    private fun getSessionLimit(sessionLimit: SessionLimit): Long {
+        return when (sessionLimit.timeUnit) {
+            SessionTimeUnit.SECONDS -> {
+                sessionLimit.time * 1000L
+            }
+            SessionTimeUnit.MINUTES -> {
+                sessionLimit.time * 60 * 1000L
+            }
+            SessionTimeUnit.HOURS -> {
+                sessionLimit.time * 3600 * 1000L
+            }
+        }
+    }
+
+    private fun setAlarm(sessionLimit: SessionLimit) {
+        val timeInMillis = Calendar.getInstance().timeInMillis + getSessionLimit(sessionLimit)
+
+        alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
+        // val intent = Intent(SessionActivity.SESSION_EXPIRED_ACTION)
+        val intent = Intent(activity, AlarmTimeoutReceiver::class.java)
+        alarmPendingIntent = PendingIntent.getBroadcast(activity, 0, intent, 0)
+        alarmManager?.set(AlarmManager.RTC_WAKEUP, timeInMillis, alarmPendingIntent)
+    }
+
+    private fun cancelAlarm() {
+        alarmPendingIntent?.let { intent ->
+            alarmManager?.cancel(intent)
+        }
+    }
 }

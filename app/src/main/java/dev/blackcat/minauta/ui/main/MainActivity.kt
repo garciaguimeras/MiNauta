@@ -2,7 +2,6 @@ package dev.blackcat.minauta.ui.main
 
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.lifecycle.Observer
@@ -63,13 +62,13 @@ class MainActivity : MyAppCompatActivity() {
             viewModel.startSession(this, sessionLimit)
         }
 
-        viewModel.account.observe(this, Observer { account ->
+        viewModel.accountObservable.observe(this, Observer { account ->
             checkAccountState(account)
             setSessionLimit(account.sessionLimit)
         })
 
-        viewModel.isServiceRunning.observe(this, Observer { running ->
-            if (running) {
+        viewModel.sessionObservable.observe(this, Observer { session ->
+            session?.let {
                 viewModel.startSessionActivity(this)
             }
         })
@@ -77,8 +76,8 @@ class MainActivity : MyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.bindService(this)
         viewModel.checkAccount()
+        viewModel.checkSession()
     }
 
     override fun onPause() {

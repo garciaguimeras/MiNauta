@@ -1,5 +1,9 @@
 package dev.blackcat.minauta.ui.session
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -14,6 +18,7 @@ import dev.blackcat.minauta.ui.MyAppCompatActivity
 class SessionActivity : MyAppCompatActivity() {
 
     companion object {
+        const val CLOSE_SESSION_ACTION = "dev.blackcat.minauta.CLOSE_SESSION_ACTION"
         const val SHOULD_START_SERVICE = "dev.blackcat.minauta.ui.session.ShouldStartService"
     }
 
@@ -27,6 +32,13 @@ class SessionActivity : MyAppCompatActivity() {
     var closingDialog: AlertDialog? = null
     var shouldStartService = false
 
+    val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            viewModel.closeSession()
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_session)
@@ -38,16 +50,24 @@ class SessionActivity : MyAppCompatActivity() {
         closeButton = findViewById(R.id.closeButton)
         closeButton.setOnClickListener {
             closingDialog = showDialogWithText(R.string.closing_text)
-            viewModel.sendCloseSession()
+            viewModel.closeSession()
         }
 
         availableTimeTextView = findViewById(R.id.availableTimeTextView)
         usedTimeTextView = findViewById(R.id.usedTimeTextView)
 
-        viewModel.isServiceRunning.observe(this, Observer { running ->
-            if (shouldStartService && !running) {
-                viewModel.startService(this)
-                shouldStartService = false
+        viewModel.sessionObservable.observe(this, Observer { session ->
+            if (session == null) {
+                if (shouldStartService) {
+                    viewModel.startSession()
+                    shouldStartService = false
+                }
+                else {
+                    finish()
+                }
+            }
+            else {
+                viewModel.continueSession()
             }
         })
 
@@ -70,12 +90,13 @@ class SessionActivity : MyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.bindService(this)
+        registerReceiver(broadcastReceiver, IntentFilter(CLOSE_SESSION_ACTION))
+        viewModel.checkSession()
     }
 
     override fun onPause() {
         super.onPause()
-        viewModel.unbindService(this)
+        unregisterReceiver(broadcastReceiver)
     }
 
     override fun onBackPressed() {
@@ -96,7 +117,6 @@ class SessionActivity : MyAppCompatActivity() {
             val dialog = createDialogWithText(resId)
             dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.button_accept)) { dialogInterface, i ->
                 dialogInterface.dismiss()
-                viewModel.sendCloseSession()
                 finish()
             }
             dialog.show()
@@ -112,11 +132,12 @@ class SessionActivity : MyAppCompatActivity() {
         if (result.state != Connection.State.OK) {
             dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.button_retry)) { dialogInterface, i ->
                 dialogInterface.dismiss()
-                viewModel.retryCloseSession(result.session!!)
+                viewModel.closeSession()
             }
         }
         dialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.button_accept)) { dialogInterface, i ->
             dialogInterface.dismiss()
+            viewModel.forceSessionClosing()
             finish()
         }
 

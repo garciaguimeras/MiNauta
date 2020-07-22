@@ -3,17 +3,18 @@ package dev.blackcat.minauta.net
 object ConnectionFactory {
 
     enum class Type {
+        JNAUTA,
         FAKE,
-        JNAUTA
+        FAKE_NO_LOGIN,
+        FAKE_NO_LOGOUT
     }
 
-    fun <T : Connection> createSessionProducer(clazz: Class<T>): T? {
-        try {
-            return clazz.newInstance()
-        } catch (e: Exception) {
-            e.printStackTrace()
+    fun createConnection(type: Type): Connection {
+        return when (type) {
+            Type.JNAUTA -> { JNautaConnection::class.java.newInstance() }
+            Type.FAKE -> { FakeConnection::class.java.newInstance() }
+            Type.FAKE_NO_LOGIN -> { FakeNoLoginConnection::class.java.newInstance() }
+            Type.FAKE_NO_LOGOUT -> { FakeNoLogoutConnection::class.java.newInstance() }
         }
-
-        return null
     }
 }
