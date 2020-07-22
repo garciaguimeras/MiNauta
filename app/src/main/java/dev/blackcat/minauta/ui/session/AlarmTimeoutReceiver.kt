@@ -17,7 +17,8 @@ class AlarmTimeoutReceiver : BroadcastReceiver() {
                 activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(activityIntent)
 
-                delay(2000)
+                // TODO: How to fix the delay?
+                delay(SessionActivity.ALARM_DELAY)
 
                 val broadcastIntent = Intent(SessionActivity.CLOSE_SESSION_ACTION)
                 context.sendBroadcast(broadcastIntent)

@@ -42,10 +42,6 @@
         </activity>
         <receiver android:name=".ui.session.AlarmTimeoutReceiver">
         </receiver>
-        <service
-            android:name=".service.SessionService"
-            android:process=":nauta_session_service"
-            android:stopWithTask="false"/>
     </application>
 
 </manifest>

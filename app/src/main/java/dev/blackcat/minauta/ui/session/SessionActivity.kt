@@ -20,6 +20,8 @@ class SessionActivity : MyAppCompatActivity() {
     companion object {
         const val CLOSE_SESSION_ACTION = "dev.blackcat.minauta.CLOSE_SESSION_ACTION"
         const val SHOULD_START_SERVICE = "dev.blackcat.minauta.ui.session.ShouldStartService"
+
+        const val ALARM_DELAY = 2500L;
     }
 
     lateinit var viewModel: SessionViewModel

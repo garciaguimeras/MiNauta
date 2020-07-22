@@ -134,7 +134,9 @@ class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.app
     }
 
     private fun setAlarm(sessionLimit: SessionLimit) {
-        val timeInMillis = Calendar.getInstance().timeInMillis + getSessionLimit(sessionLimit)
+        var sessionLimit = getSessionLimit(sessionLimit) - SessionActivity.ALARM_DELAY
+        sessionLimit = if (sessionLimit > 0) sessionLimit else 0
+        val timeInMillis = Calendar.getInstance().timeInMillis + sessionLimit
 
         alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
         // val intent = Intent(SessionActivity.SESSION_EXPIRED_ACTION)
