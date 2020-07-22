@@ -40,8 +40,10 @@
             android:name=".ui.settings.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+
         <receiver android:name=".ui.session.AlarmTimeoutReceiver">
         </receiver>
+
     </application>
 
 </manifest>
