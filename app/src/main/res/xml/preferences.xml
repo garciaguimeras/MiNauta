@@ -10,6 +10,14 @@
             app:title="@string/hint_username"
             app:useSimpleSummaryProvider="true" />
 
+        <DropDownPreference
+            app:key="dev.blackcat.minauta.AccountType"
+            app:title="@string/hint_account_type"
+            app:defaultValue="@string/international_account_value"
+            app:entries="@array/account_type_texts"
+            app:entryValues="@array/account_type_values"
+            app:useSimpleSummaryProvider="true" />
+
         <EditTextPreference
             app:key="dev.blackcat.minauta.Password"
             app:title="@string/hint_password"

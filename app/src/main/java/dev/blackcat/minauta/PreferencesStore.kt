@@ -6,13 +6,14 @@ import androidx.preference.PreferenceManager
 import dev.blackcat.minauta.data.*
 import kotlin.math.log
 
-class PreferencesStore(context: Context) {
+class PreferencesStore(val context: Context) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     val account: Account
         get() {
             val username = prefs.getString(USERNAME, "")
+            val accountType = prefs.getString(ACCOUNT_TYPE, context.getString(R.string.international_account_value))
             val password = prefs.getString(PASSWORD, "")
             if (username == "") {
                 val sessionLimit = SessionLimit(false, 0, SessionTimeUnit.MINUTES)
@@ -20,7 +21,7 @@ class PreferencesStore(context: Context) {
             }
 
             val sessionLimit = sessionLimit
-            return Account(username!!, password!!, sessionLimit, initialized = true)
+            return Account("${username!!}@${accountType!!}", password!!, sessionLimit, initialized = true)
         }
 
     val sessionLimit: SessionLimit
@@ -38,14 +39,6 @@ class PreferencesStore(context: Context) {
             return if (loginParams.isNullOrEmpty() && startTime == 0L) null
                    else Session(loginParams, startTime)
         }
-
-
-    fun setAccount(username: String, password: String) {
-        val editor = prefs.edit()
-        editor.putString(USERNAME, username)
-        editor.putString(PASSWORD, password)
-        editor.apply()
-    }
 
     fun removeSession() {
         val editor = prefs.edit()
@@ -71,6 +64,7 @@ class PreferencesStore(context: Context) {
 
     companion object {
         val USERNAME = "dev.blackcat.minauta.Username"
+        val ACCOUNT_TYPE = "dev.blackcat.minauta.AccountType"
         val PASSWORD = "dev.blackcat.minauta.Password"
 
         val LOGIN_PARAMS = "dev.blackcat.minauta.LoginParams"

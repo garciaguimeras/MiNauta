@@ -5,4 +5,14 @@
         <item>@string/minutes_text</item>
         <item>@string/hours_text</item>
     </string-array>
+
+    <string-array name="account_type_texts">
+        <item>@string/international_account_text</item>
+        <item>@string/national_account_text</item>
+    </string-array>
+
+    <string-array name="account_type_values">
+        <item>@string/international_account_value</item>
+        <item>@string/national_account_value</item>
+    </string-array>
 </resources>

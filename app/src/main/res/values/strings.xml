@@ -23,6 +23,7 @@
 
     <string name="hint_username">Usuario</string>
     <string name="hint_password">Contraseña</string>
+    <string name="hint_account_type">Tipo de cuenta</string>
 
     <string name="button_accept">Aceptar</string>
     <string name="button_configure">Configurar</string>
@@ -41,4 +42,11 @@
     <string name="hours_text">horas</string>
     <string name="session_started_as_text">Sesión iniciada como:</string>
     <string name="button_retry">Reintentar</string>
+
+    <string name="international_account_text">Cuenta internacional</string>
+    <string name="national_account_text">Cuenta nacional</string>
+    <string name="international_account_value">nauta.com.cu</string>
+    <string name="national_account_value">nauta.co.cu</string>
+    <string name="soon_on_github_text">Pronto en github</string>
+
 </resources>

@@ -30,6 +30,8 @@ class MainActivity : MyAppCompatActivity() {
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(MainViewModel::class.java)
 
+        findViewById<ImageView>(R.id.logoImageView).setOnClickListener { showAboutDialog() }
+
         accountTextView = findViewById(R.id.accountTextView)
 
         configureButton = findViewById(R.id.configureButton)
