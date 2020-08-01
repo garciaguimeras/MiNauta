@@ -5,7 +5,7 @@ import android.text.InputType
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import dev.blackcat.minauta.PreferencesStore
+import dev.blackcat.minauta.util.PreferencesStore
 import dev.blackcat.minauta.R
 
 class SettingsFragment : PreferenceFragmentCompat() {

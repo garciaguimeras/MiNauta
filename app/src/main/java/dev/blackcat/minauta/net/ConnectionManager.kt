@@ -6,12 +6,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import java.util.*
 
 class ConnectionManager(val account: Account) {
 
-    val connection = ConnectionFactory.createConnection(ConnectionFactory.Type.JNAUTA)
-    //val connection = ConnectionFactory.createConnection(ConnectionFactory.Type.FAKE)
+    private val connection = ConnectionFactory.create()
 
     fun login(): Connection.LoginResult =
             runBlocking {

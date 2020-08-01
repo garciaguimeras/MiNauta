@@ -48,5 +48,6 @@
     <string name="international_account_value">nauta.com.cu</string>
     <string name="national_account_value">nauta.co.cu</string>
     <string name="soon_on_github_text">Pronto en github</string>
+    <string name="alarm_timeout_text">Se ha alcanzado el límite de la sesión</string>
 
 </resources>

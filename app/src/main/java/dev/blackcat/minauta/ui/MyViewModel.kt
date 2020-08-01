@@ -3,7 +3,7 @@ package dev.blackcat.minauta.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import dev.blackcat.minauta.PreferencesStore
+import dev.blackcat.minauta.util.PreferencesStore
 import dev.blackcat.minauta.data.Account
 import dev.blackcat.minauta.data.Session
 

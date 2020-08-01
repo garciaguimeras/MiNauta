@@ -1,8 +1,6 @@
-package dev.blackcat.minauta
+package dev.blackcat.minauta.util
 
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.Serializable
 

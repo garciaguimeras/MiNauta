@@ -1,10 +1,9 @@
-package dev.blackcat.minauta
+package dev.blackcat.minauta.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.*
-import kotlin.math.log
 
 class PreferencesStore(val context: Context) {
 
