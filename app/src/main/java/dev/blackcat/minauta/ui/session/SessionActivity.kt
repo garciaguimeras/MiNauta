@@ -18,7 +18,8 @@ import dev.blackcat.minauta.ui.MyAppCompatActivity
 class SessionActivity : MyAppCompatActivity() {
 
     companion object {
-        const val CLOSE_SESSION_ACTION = "dev.blackcat.minauta.CLOSE_SESSION_ACTION"
+        const val SESSION_CLOSED_ACTION = "dev.blackcat.minauta.SESSION_CLOSED_ACTION"
+        const val LOGOUT_RESULT = "dev.blackcat.minauta.LOGOUT_RESULT"
         const val SHOULD_START_SERVICE = "dev.blackcat.minauta.ui.session.ShouldStartService"
 
         const val ALARM_DELAY = 2500L;
@@ -36,7 +37,8 @@ class SessionActivity : MyAppCompatActivity() {
 
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            viewModel.closeSession()
+            val result = intent!!.extras!!.getSerializable(LOGOUT_RESULT) as Connection.LogoutResult
+            viewModel.onLogoutResult(result)
         }
     }
 
@@ -92,7 +94,7 @@ class SessionActivity : MyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        registerReceiver(broadcastReceiver, IntentFilter(CLOSE_SESSION_ACTION))
+        registerReceiver(broadcastReceiver, IntentFilter(SESSION_CLOSED_ACTION))
         viewModel.checkSession()
     }
 

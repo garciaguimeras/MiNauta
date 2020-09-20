@@ -11,10 +11,8 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import dev.blackcat.minauta.util.PowerUtil
-import dev.blackcat.minauta.util.PreferencesStore
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.net.Connection
-import dev.blackcat.minauta.net.ConnectionManager
 import dev.blackcat.minauta.util.SessionUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,35 +33,40 @@ class AlarmTimeoutReceiver : BroadcastReceiver() {
         context?.let { context ->
             CoroutineScope(Dispatchers.Default).launch {
 
-                if (!PowerUtil.isScreenOn(context)) {
+                val isScreenOn = PowerUtil.isScreenOn(context)
+                Log.i("==>", "Screen is ${if (isScreenOn) "on" else "off"}")
+
+                if (!isScreenOn) {
                     PowerUtil.acquireWakeLock(context)
-                    sendNotification(context)
-
-                    // TODO: How to fix the delay?
-                    delay(SessionActivity.ALARM_DELAY)
-
-                    val sessionUtil = SessionUtil(context)
-                    val result = sessionUtil.logout()
-                    result?.let { result ->
-                        if (result.state == Connection.State.OK) {
-                            Log.i("==>", "Cerrado!")
-                            sessionUtil.cancelJob()
-                        }
-                    }
-
-                    PowerUtil.releaseWakeLock()
-                    return@launch
                 }
-
-                val activityIntent = Intent(context, SessionActivity::class.java)
-                activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(activityIntent)
+                sendNotification(context, R.string.alarm_timeout_text)
 
                 // TODO: How to fix the delay?
                 delay(SessionActivity.ALARM_DELAY)
 
-                val broadcastIntent = Intent(SessionActivity.CLOSE_SESSION_ACTION)
-                context.sendBroadcast(broadcastIntent)
+                val sessionUtil = SessionUtil(context)
+                val result = sessionUtil.logout()
+                result?.let { result ->
+                    if (result.state == Connection.State.OK) {
+                        sessionUtil.cancelJob()
+                        Log.i("==>", "Cerrado!")
+                        sendNotification(context, R.string.logout_ok)
+                    }
+                    else {
+                        Log.i("==>", "No se pudo cerrar la sesion")
+                        sendNotification(context, R.string.logout_error)
+                    }
+                }
+
+                if (!isScreenOn) {
+                    PowerUtil.releaseWakeLock()
+                }
+
+                result?.let { result ->
+                    val broadcastIntent = Intent(SessionActivity.SESSION_CLOSED_ACTION)
+                    broadcastIntent.putExtra(SessionActivity.LOGOUT_RESULT, result)
+                    context.sendBroadcast(broadcastIntent)
+                }
             }
         }
     }
@@ -80,8 +83,8 @@ class AlarmTimeoutReceiver : BroadcastReceiver() {
         return builder.build()
     }
 
-    private fun sendNotification(context: Context) {
-        val text = context.getString(R.string.alarm_timeout_text)
+    private fun sendNotification(context: Context, textResId: Int) {
+        val text = context.getString(textResId)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

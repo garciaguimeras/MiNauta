@@ -58,7 +58,7 @@ class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.app
             if (result.state!! == Connection.State.OK) {
                 forceSessionClosing()
             }
-            logoutResult.postValue(result)
+            onLogoutResult(result)
         }
     }
 
@@ -66,6 +66,11 @@ class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.app
         timeLoopJob?.cancel()
         sessionUtil.cancelJob()
     }
+
+    fun onLogoutResult(result: Connection.LogoutResult) {
+        logoutResult.postValue(result)
+    }
+
 
     private fun startTimeLoop() {
         timeLoopJob = CoroutineScope(Dispatchers.Default).launch {

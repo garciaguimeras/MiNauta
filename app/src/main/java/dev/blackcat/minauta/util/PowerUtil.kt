@@ -8,7 +8,7 @@ class PowerUtil {
 
     companion object {
 
-        const val TAG = "tuenviodroid:wakeLockTag"
+        const val TAG = "minauta:wakeLockTag"
 
         var wakeLock: PowerManager.WakeLock? = null
 
@@ -22,7 +22,7 @@ class PowerUtil {
             wakeLock?.release()
 
             val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-            val flags = PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE
+            val flags = PowerManager.PARTIAL_WAKE_LOCK // or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE
             wakeLock = powerManager.newWakeLock(flags, TAG)
             wakeLock?.acquire()
         }
