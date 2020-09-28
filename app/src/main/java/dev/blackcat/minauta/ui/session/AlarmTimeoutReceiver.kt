@@ -58,14 +58,14 @@ class AlarmTimeoutReceiver : BroadcastReceiver() {
                     }
                 }
 
-                if (!isScreenOn) {
-                    PowerUtil.releaseWakeLock()
-                }
-
                 result?.let { result ->
                     val broadcastIntent = Intent(SessionActivity.SESSION_CLOSED_ACTION)
                     broadcastIntent.putExtra(SessionActivity.LOGOUT_RESULT, result)
                     context.sendBroadcast(broadcastIntent)
+                }
+
+                if (!isScreenOn) {
+                    PowerUtil.releaseWakeLock()
                 }
             }
         }

@@ -38,7 +38,7 @@ class SessionActivity : MyAppCompatActivity() {
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val result = intent!!.extras!!.getSerializable(LOGOUT_RESULT) as Connection.LogoutResult
-            viewModel.onLogoutResult(result)
+            onLogoutResult(result)
         }
     }
 
