@@ -50,7 +50,25 @@ class SessionUtil(val context: Context) {
 
     // Alarm
 
-    fun getSessionLimit(sessionLimit: SessionLimit): Long {
+    fun getAvailableTimeInMillis(availableTime: String?): Long {
+        val parts = availableTime?.split(":") ?: arrayListOf()
+        if (parts.size < 3) {
+            // Error getting available time... asumming infinite session
+            return Long.MAX_VALUE;
+        }
+
+        val hours = parts[0].toLong()
+        val minutes = parts[1].toLong()
+        val seconds = parts[2].toLong()
+        return (hours * 3600 + minutes * 60 + seconds) * 1000L
+    }
+
+    fun getSessionLimitInMillis(sessionLimit: SessionLimit): Long {
+        if (!sessionLimit.enabled) {
+            // No session limit defined
+            return Long.MAX_VALUE
+        }
+
         return when (sessionLimit.timeUnit) {
             SessionTimeUnit.SECONDS -> {
                 sessionLimit.time * 1000L
@@ -64,10 +82,10 @@ class SessionUtil(val context: Context) {
         }
     }
 
-    fun setAlarm(sessionLimit: SessionLimit) {
-        var sessionLimit = getSessionLimit(sessionLimit) - SessionActivity.ALARM_DELAY
-        sessionLimit = if (sessionLimit > 0) sessionLimit else 0
-        val timeInMillis = SystemClock.elapsedRealtime() + sessionLimit
+    fun setAlarm(baseTime: Long, millis: Long) {
+        var limit = millis - SessionActivity.ALARM_DELAY
+        limit = if (limit > 0) limit else 0
+        val timeInMillis = baseTime + limit
 
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
         val intent = Intent(context, AlarmTimeoutReceiver::class.java)

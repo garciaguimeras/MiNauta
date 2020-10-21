@@ -1,5 +1,6 @@
 package dev.blackcat.minauta.ui.session
 
+import android.os.SystemClock
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -30,16 +31,19 @@ class SessionViewModel(val activity: SessionActivity) : MyViewModel(activity.app
 
     fun startSession() {
         val result = sessionUtil.login()
-        loginResult.postValue(result!!)
+        val baseTime = SystemClock.elapsedRealtime()
+        loginResult.postValue(result)
         if (result.state!! != Connection.State.OK) return
-
-        val account = preferencesStore.account
-        if (account.sessionLimit.enabled) {
-            sessionUtil.setAlarm(account.sessionLimit)
-        }
 
         val timeResult = sessionUtil.getAvailableTime()
         availableTime.postValue(timeResult)
+        val availableTimeInMillis = sessionUtil.getAvailableTimeInMillis(timeResult.availableTime)
+
+        val account = preferencesStore.account
+        val sessionLimitInMillis = sessionUtil.getSessionLimitInMillis(account.sessionLimit)
+
+        val alarmTimeInMillis = Math.min(availableTimeInMillis, sessionLimitInMillis);
+        sessionUtil.setAlarm(baseTime, alarmTimeInMillis)
 
         startTimeLoop()
     }
