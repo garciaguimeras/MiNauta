@@ -56,7 +56,8 @@ open class MyAppCompatActivity : AppCompatActivity() {
 
         val miNautaLink: TextView = view.findViewById(R.id.miNautaLink)
         miNautaLink.setOnClickListener { v ->
-            Toast.makeText(this, getString(R.string.soon_on_github_text), Toast.LENGTH_LONG).show()
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/garciaguimeras/MiNauta"))
+            startActivity(intent)
         }
 
         AlertDialog.Builder(this)
