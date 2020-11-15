@@ -80,7 +80,33 @@ class PreferencesStore(val context: Context) {
         editor.apply()
     }
 
+    fun getOldAccountKeysAsStoredAccount(): StoredAccount? {
+        val username = prefs.getString(USERNAME, null)
+        val password = prefs.getString(PASSWORD, null)
+        val accountType = prefs.getString(ACCOUNT_TYPE, null)
+        if (username != null && password != null && accountType != null) {
+            val nationalAccountValue = context.getString(R.string.national_account_value)
+            val type = if (accountType == nationalAccountValue) AccountType.NATIONAL else AccountType.INTERNATIONAL
+            return StoredAccount(username, password, type, true)
+        }
+        return null
+    }
+
+    fun removeOldAccountKeys() {
+        val editor = prefs.edit()
+        editor.remove(USERNAME)
+        editor.remove(PASSWORD)
+        editor.remove(ACCOUNT_TYPE)
+        editor.commit()
+    }
+
     companion object {
+        // Old account keys
+        val USERNAME = "dev.blackcat.minauta.Username"
+        val ACCOUNT_TYPE = "dev.blackcat.minauta.AccountType"
+        val PASSWORD = "dev.blackcat.minauta.Password"
+
+        // Keys
         val ACCOUNTS = "dev.blackcat.minauta.Accounts"
 
         val LOGIN_PARAMS = "dev.blackcat.minauta.LoginParams"
