@@ -20,6 +20,7 @@
     <string name="incorrect_password_error">La contraseña es incorrecta</string>
     <string name="logout_ok">La sesión se cerró correctamente</string>
     <string name="logout_error">No se pudo cerrar la sesión. Cierre la WiFi o apague el router para desconectarse</string>
+    <string name="remove_account_warning">¿Desea borrar esta cuenta?</string>
 
     <string name="hint_username">Usuario</string>
     <string name="hint_password">Contraseña</string>
@@ -49,5 +50,8 @@
     <string name="national_account_value">nauta.co.cu</string>
     <string name="soon_on_github_text">Pronto en github</string>
     <string name="alarm_timeout_text">Se ha alcanzado el límite de la sesión</string>
+    <string name="no_accounts_text">Introduzca su cuenta</string>
+    <string name="account_activity_title">Mis cuentas</string>
+    <string name="session_activity_title">Sesión de Nauta</string>
 
 </resources>

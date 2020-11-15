@@ -11,8 +11,4 @@
         <item>@string/national_account_text</item>
     </string-array>
 
-    <string-array name="account_type_values">
-        <item>@string/international_account_value</item>
-        <item>@string/national_account_value</item>
-    </string-array>
 </resources>

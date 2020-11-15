@@ -6,7 +6,7 @@ import dev.blackcat.minauta.data.SessionLimit
 import dev.blackcat.minauta.ui.MyViewModel
 import dev.blackcat.minauta.ui.portal.PortalActivity
 import dev.blackcat.minauta.ui.session.SessionActivity
-import dev.blackcat.minauta.ui.settings.SettingsActivity
+import dev.blackcat.minauta.ui.account.AccountActivity
 
 class MainViewModel(application: Application) : MyViewModel(application) {
 
@@ -17,7 +17,7 @@ class MainViewModel(application: Application) : MyViewModel(application) {
     }
 
     fun startAccountActivity(activity: MainActivity) {
-        val intent = Intent(activity, SettingsActivity::class.java)
+        val intent = Intent(activity, AccountActivity::class.java)
         activity.startActivity(intent)
     }
 

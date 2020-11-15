@@ -37,7 +37,7 @@
             android:name=".ui.portal.PortalActivity">
         </activity>
         <activity
-            android:name=".ui.settings.SettingsActivity"
+            android:name=".ui.account.AccountActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 

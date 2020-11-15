@@ -2,26 +2,45 @@ package dev.blackcat.minauta.util
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.*
 
 class PreferencesStore(val context: Context) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private val mapper = ObjectMapper();
 
     val account: Account
         get() {
-            val username = prefs.getString(USERNAME, "")
-            val accountType = prefs.getString(ACCOUNT_TYPE, context.getString(R.string.international_account_value))
-            val password = prefs.getString(PASSWORD, "")
-            if (username == "") {
+            val storedAccounts = getStoredAccounts()
+            val selectedAccount = storedAccounts.firstOrNull { a -> a.selected }
+            if (selectedAccount == null) {
                 val sessionLimit = SessionLimit(false, 0, SessionTimeUnit.MINUTES)
                 return Account(null, null, sessionLimit, initialized = false)
             }
-
+            val accountTypeValue = when (selectedAccount.accountType) {
+                AccountType.NATIONAL -> context.getString(R.string.national_account_value)
+                AccountType.INTERNATIONAL -> context.getString(R.string.international_account_value)
+            }
+            val fullUsername = "${selectedAccount.username}@${accountTypeValue}"
             val sessionLimit = sessionLimit
-            return Account("${username!!}@${accountType!!}", password!!, sessionLimit, initialized = true)
+            return Account("${fullUsername}", selectedAccount.password!!, sessionLimit, initialized = true)
         }
+
+    fun setStoredAccounts(accounts: List<StoredAccount>) {
+        val storedAccountsStr = mapper.writeValueAsString(accounts)
+        val editor = prefs.edit()
+        editor.putString(ACCOUNTS, storedAccountsStr)
+        editor.commit()
+    }
+
+    fun getStoredAccounts(): List<StoredAccount> {
+        val storedAccountsStr = prefs.getString(ACCOUNTS, "[]")
+        val storedAccounts = mapper.readValue(storedAccountsStr, object: TypeReference<List<StoredAccount>>() {})
+        return storedAccounts
+    }
 
     val sessionLimit: SessionLimit
         get() {
@@ -62,9 +81,7 @@ class PreferencesStore(val context: Context) {
     }
 
     companion object {
-        val USERNAME = "dev.blackcat.minauta.Username"
-        val ACCOUNT_TYPE = "dev.blackcat.minauta.AccountType"
-        val PASSWORD = "dev.blackcat.minauta.Password"
+        val ACCOUNTS = "dev.blackcat.minauta.Accounts"
 
         val LOGIN_PARAMS = "dev.blackcat.minauta.LoginParams"
         val START_TIME = "dev.blackcat.minauta.StartTime"
