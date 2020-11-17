@@ -8,7 +8,7 @@ class MiNautaApp : Application() {
         super.onCreate()
 
         val setup = AppSetup(applicationContext)
-        setup.convertAccountsFrom_v1_6()
+        setup.migrateAccountsFrom_v1_6()
     }
 
 }

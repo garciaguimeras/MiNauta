@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import dev.blackcat.minauta.R
 import dev.blackcat.minauta.data.AccountType
@@ -21,6 +22,7 @@ class AccountRecyclerViewAdapter(val context: Context) : RecyclerView.Adapter<Re
     class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val usernameCheckBox = view.findViewById<CheckBox>(R.id.usernameCheckBox)
+        val accountTypeTextView = view.findViewById<TextView>(R.id.accountTypeTextView)
         val editImageView = view.findViewById<ImageView>(R.id.editImageView)
         val removeImageView = view.findViewById<ImageView>(R.id.removeImageView)
 
@@ -57,12 +59,13 @@ class AccountRecyclerViewAdapter(val context: Context) : RecyclerView.Adapter<Re
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is AccountViewHolder) {
             val account = accounts[position]
-            val accountTypeValue = when (account.accountType) {
-                AccountType.NATIONAL -> context.getString(R.string.national_account_value)
-                AccountType.INTERNATIONAL -> context.getString(R.string.international_account_value)
+
+            holder.accountTypeTextView.text = when (account.accountType) {
+                AccountType.NATIONAL -> context.getString(R.string.national_account_text)
+                AccountType.INTERNATIONAL -> context.getString(R.string.international_account_text)
             }
 
-            holder.usernameCheckBox.text = "${account.username}@${accountTypeValue}"
+            holder.usernameCheckBox.text = "${account.username}"
             holder.usernameCheckBox.isChecked = account.selected
             holder.usernameCheckBox.setOnClickListener { v ->
                 onSelectAccount?.let { onSelectAccount ->
