@@ -95,11 +95,14 @@ class MainActivity : MyAppCompatActivity() {
                 accountTextView.setText(R.string.configure_account_text)
                 startButton.isEnabled = false
                 portalButton.isEnabled = false
+                sessionLimitCheckBox.isEnabled = false
+                sessionLimitCheckBox.isChecked = false
             }
             true -> {
                 accountTextView.text = account.username
                 startButton.isEnabled = true
                 portalButton.isEnabled = true
+                sessionLimitCheckBox.isEnabled = true
             }
         }
     }

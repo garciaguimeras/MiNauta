@@ -19,6 +19,6 @@ object ConnectionFactory {
     }
 
     fun create(): Connection {
-        return create(Type.FAKE)
+        return create(Type.JNAUTA)
     }
 }

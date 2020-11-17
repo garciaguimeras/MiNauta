@@ -6,29 +6,11 @@
     android:layout_height="wrap_content">
 
 
-    <ImageView
-        android:id="@+id/removeImageView"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_action_remove"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/usernameCheckBox" />
-
-    <ImageView
-        android:id="@+id/editImageView"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_action_edit"
-        app:layout_constraintEnd_toStartOf="@+id/removeImageView"
-        app:layout_constraintTop_toTopOf="@+id/usernameCheckBox" />
-
     <LinearLayout
         android:id="@+id/guideline5"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginStart="44dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
@@ -50,7 +32,7 @@
         android:textColor="@color/nautaBlue"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/editImageView"
+        app:layout_constraintEnd_toStartOf="@+id/editImageButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -58,9 +40,41 @@
         android:id="@+id/accountTypeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
+        android:layout_marginStart="48dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/usernameCheckBox" />
+
+    <ImageButton
+        android:id="@+id/editImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/round_button"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp"
+        android:theme="@style/RoundImageButton"
+        app:layout_constraintEnd_toStartOf="@+id/removeImageButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_action_edit" />
+
+    <ImageButton
+        android:id="@+id/removeImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/round_button"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp"
+        android:theme="@style/RoundImageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_action_remove" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

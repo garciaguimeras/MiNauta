@@ -36,7 +36,7 @@
     <string name="captcha_text">Captcha</string>
     <string name="button_continue">Continuar</string>
     <string name="button_cancel">Cancelar</string>
-    <string name="session_limit_text">Límite de sesión:</string>
+    <string name="session_limit_text">Establecer límite de sesión</string>
 
     <string name="seconds_text">segundos</string>
     <string name="minutes_text">minutos</string>

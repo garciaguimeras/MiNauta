@@ -23,8 +23,8 @@ class AccountRecyclerViewAdapter(val context: Context) : RecyclerView.Adapter<Re
 
         val usernameCheckBox = view.findViewById<CheckBox>(R.id.usernameCheckBox)
         val accountTypeTextView = view.findViewById<TextView>(R.id.accountTypeTextView)
-        val editImageView = view.findViewById<ImageView>(R.id.editImageView)
-        val removeImageView = view.findViewById<ImageView>(R.id.removeImageView)
+        val editImageButton = view.findViewById<ImageView>(R.id.editImageButton)
+        val removeImageButton = view.findViewById<ImageView>(R.id.removeImageButton)
 
     }
 
@@ -73,13 +73,13 @@ class AccountRecyclerViewAdapter(val context: Context) : RecyclerView.Adapter<Re
                 }
             }
 
-            holder.editImageView.setOnClickListener { v ->
+            holder.editImageButton.setOnClickListener { v ->
                 onEditAccount?.let { onEditAccount ->
                     onEditAccount(position)
                 }
             }
 
-            holder.removeImageView.setOnClickListener { v ->
+            holder.removeImageButton.setOnClickListener { v ->
                 onRemoveAccount?.let { onRemoveAccount ->
                     onRemoveAccount(position)
                 }
