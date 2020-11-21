@@ -12,7 +12,7 @@ android {
         applicationId "dev.blackcat.minauta"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 10
+        versionCode 11
         versionName "1.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
