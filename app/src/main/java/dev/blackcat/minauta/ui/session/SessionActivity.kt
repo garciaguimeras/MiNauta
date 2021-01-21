@@ -79,13 +79,11 @@ class SessionActivity : MyAppCompatActivity() {
             onLoginResult(result)
         })
         viewModel.availableTime.observe(this, Observer { result ->
-            val availableTimeText = getString(R.string.available_time_text)
             var text = if (result.state == Connection.State.OK) result.availableTime!! else "--:--:--"
-            availableTimeTextView.text = "${availableTimeText} ${text}"
+            availableTimeTextView.text = text
         })
         viewModel.usedTime.observe(this, Observer { text ->
-            val usedTimeText = getString(R.string.used_time_text)
-            usedTimeTextView.text = "${usedTimeText} ${text}"
+            usedTimeTextView.text = text
         })
         viewModel.logoutResult.observe(this, Observer { result ->
             onLogoutResult(result)
