@@ -39,7 +39,7 @@ class AlarmTimeoutReceiver : BroadcastReceiver() {
                 if (!isScreenOn) {
                     PowerUtil.acquireWakeLock(context)
                 }
-                sendNotification(context, R.string.alarm_timeout_text)
+                // sendNotification(context, R.string.alarm_timeout_text)
 
                 // TODO: How to fix the delay?
                 delay(SessionActivity.ALARM_DELAY)

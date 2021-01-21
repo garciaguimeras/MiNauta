@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import dev.blackcat.minauta.data.SessionLimit
 import dev.blackcat.minauta.data.SessionTimeUnit
 import dev.blackcat.minauta.net.Connection
@@ -16,9 +15,7 @@ class SessionUtil(val context: Context) {
 
     val preferencesStore = PreferencesStore(context)
     val connectionManager = ConnectionManager(preferencesStore.account)
-
     var alarmManager: AlarmManager? = null
-    var alarmPendingIntent: PendingIntent? = null
 
     // Session
 
@@ -88,15 +85,15 @@ class SessionUtil(val context: Context) {
         val timeInMillis = baseTime + limit
 
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
-        val intent = Intent(context, AlarmTimeoutReceiver::class.java)
-        alarmPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+        val intent = Intent(context.applicationContext, AlarmTimeoutReceiver::class.java)
+        val alarmPendingIntent = PendingIntent.getBroadcast(context.applicationContext, 0, intent, 0)
         alarmManager?.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeInMillis, alarmPendingIntent)
     }
 
     fun cancelAlarm() {
-        alarmPendingIntent?.let { intent ->
-            alarmManager?.cancel(intent)
-        }
+        val intent = Intent(context.applicationContext, AlarmTimeoutReceiver::class.java)
+        val alarmPendingIntent = PendingIntent.getBroadcast(context.applicationContext, 0, intent, 0)
+        alarmManager?.cancel(alarmPendingIntent)
     }
 
 }
